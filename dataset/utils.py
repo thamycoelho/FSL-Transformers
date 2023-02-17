@@ -81,6 +81,9 @@ def get_loaders(args):
         )
         data_loader_val[source] = data_loader
 
+    if 'single' in dataset_vals:
+        data_loader_val = data_loader_val['single']
+
     # Test loader
     if not isinstance(dataset_test, dict):
         dataset_test = {'single': dataset_test}
@@ -101,6 +104,9 @@ def get_loaders(args):
             generator=generator
         )
         data_loader_test[source] = data_loader
+
+    if 'single' in dataset_test:
+        data_loader_test = data_loader_test['single']
 
     # Train loader
     sampler_train = DistributedSampler(dataset_train)

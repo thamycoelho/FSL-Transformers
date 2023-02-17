@@ -93,6 +93,9 @@ class Trainer:
     @torch.no_grad()
     def evaluate(self, 
                 eval=False):
+        data_loader = self.data_loader_test if eval else self.data_loader_val
+        gloal_label_id = self.global_labels_test if eval else self.global_labels_val
+
         # Logger 
         metric_logger = logger.MetricLogger(delimiter="  ")
         metric_logger.add_meter('n_ways', logger.SmoothedValue(window_size=1, fmt='{value:d}'))
@@ -103,9 +106,6 @@ class Trainer:
         all_acc = []
         y_pred = []
         y_target = []
-        
-        data_loader = self.data_loader_test if eval else self.data_loader_val
-        gloal_label_id = self.global_labels_test if eval else self.global_labels_val
 
         self.model.eval()
         

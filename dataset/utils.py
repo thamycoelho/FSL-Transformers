@@ -60,8 +60,11 @@ def get_loaders(args):
     global_labels_test = dataset_test.mapCls
 
     # Val loader
+    if not isinstance(dataset_vals, dict):
+        dataset_vals = {'single': dataset_vals}
+        
     data_loader_val = {}
-
+    
     for j, (source, dataset_val) in enumerate(dataset_vals.items()):
         sampler_val = torch.utils.data.SequentialSampler(dataset_val)
 
@@ -79,6 +82,8 @@ def get_loaders(args):
         data_loader_val[source] = data_loader
 
     # Test loader
+    if not isinstance(dataset_test, dict):
+        dataset_test = {'single': dataset_test}
     data_loader_test = {}
 
     for j, (source, dataset_test) in enumerate(dataset_test.items()):

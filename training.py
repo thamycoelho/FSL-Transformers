@@ -57,7 +57,7 @@ class Trainer:
         self.data_loader_train.sampler.set_epoch(epoch)
         self.model.train()
         
-        self.train_data.sampler.set_epoch(epoch)
+        self.data_loader_train.sampler.set_epoch(epoch)
         for batch in metric_logger.log_every(self.data_loader_train, 10, header):
             SupportTensor, SupportLabel, x, y, _ = batch
             SupportTensor = SupportTensor.to(self.gpu_id)

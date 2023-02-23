@@ -59,8 +59,11 @@ class Trainer:
         
         self.train_data.sampler.set_epoch(epoch)
         for batch in metric_logger.log_every(self.data_loader_train, 10, header):
-            batch.to(self.gpu_id)
             SupportTensor, SupportLabel, x, y, _ = batch
+            SupportTensor.to(self.gpu_id)
+            SupportLabel.to(self.gpu_id)
+            x.to(self.gpu_id)
+            y.to(self.gpu_id)
             
             # Forward 
             with torch.cuda.amp.autocast():
@@ -106,8 +109,13 @@ class Trainer:
         self.model.eval()
         
         for ii, batch in enumerate(metric_logger.log_every(data_loader, 10, header)):
-            batch.to(self.gpu_id)
             SupportTensor, SupportLabel, x, y, label_to_class = batch
+            SupportTensor.to(self.gpu_id)
+            SupportLabel.to(self.gpu_id)
+            x.to(self.gpu_id)
+            y.to(self.gpu_id)
+
+
             
             with torch.cuda.amp.autocast():
                 logits = self.model(query=x, support=SupportTensor, support_labels=SupportLabel)

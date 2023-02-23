@@ -60,10 +60,10 @@ class Trainer:
         self.train_data.sampler.set_epoch(epoch)
         for batch in metric_logger.log_every(self.data_loader_train, 10, header):
             SupportTensor, SupportLabel, x, y, _ = batch
-            SupportTensor.to(self.gpu_id)
-            SupportLabel.to(self.gpu_id)
-            x.to(self.gpu_id)
-            y.to(self.gpu_id)
+            SupportTensor = SupportTensor.to(self.gpu_id)
+            SupportLabel = SupportLabel.to(self.gpu_id)
+            x = x.to(self.gpu_id)
+            y = y.to(self.gpu_id)
             
             # Forward 
             with torch.cuda.amp.autocast():
@@ -110,10 +110,13 @@ class Trainer:
         
         for ii, batch in enumerate(metric_logger.log_every(data_loader, 10, header)):
             SupportTensor, SupportLabel, x, y, label_to_class = batch
-            SupportTensor.to(self.gpu_id)
-            SupportLabel.to(self.gpu_id)
-            x.to(self.gpu_id)
-            y.to(self.gpu_id)
+            SupportTensor = SupportTensor.to(self.gpu_id)
+            SupportLabel = SupportLabel.to(self.gpu_id)
+            x = x.to(self.gpu_id)
+            y = y.to(self.gpu_id)
+
+            print("SupportTensor", SupportTensor.device)
+            print("SupportLabel", SupportLabel.device)
 
             with torch.cuda.amp.autocast():
                 logits = self.model(query=x, support=SupportTensor, support_labels=SupportLabel)
@@ -123,8 +126,6 @@ class Trainer:
             pred = torch.argmax(logits, dim=-1)
             
             # Calculate accuracy
-            print("logits:", logits)
-            print("y:", y)
             acc = accuracy(logits, y)[0]
             all_acc.append(acc.item())
             

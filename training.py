@@ -115,9 +115,6 @@ class Trainer:
             x = x.to(self.gpu_id)
             y = y.to(self.gpu_id)
 
-            print("SupportTensor", SupportTensor.device)
-            print("SupportLabel", SupportLabel.device)
-
             with torch.cuda.amp.autocast():
                 logits = self.model(query=x, support=SupportTensor, support_labels=SupportLabel)
                 

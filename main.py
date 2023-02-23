@@ -18,12 +18,12 @@ def main(rank, world_size, args):
     ddp_setup(rank, world_size)    
     # Get data loaders
     print('Getting dataset')
-    data_loader_train, data_loader_val, data_loader_test, global_labels_val, global_labels_test = get_loaders(args)
+    data_loader_train, data_loader_val, global_labels_val = get_loaders(args)
     
     # Create model from pretrained backbone
     print('Uploading model')
     model = DeiTForFewShot.from_pretrained("facebook/deit-base-distilled-patch16-224")
-    model.config.update({"id2label": global_labels_test})
+    model.config.update({"id2label": global_labels_val})
     
     # Optimizers, LR and Loss function
     print('Defining optimizers')
@@ -33,8 +33,7 @@ def main(rank, world_size, args):
 
     # Define Trainer 
     trainer = training.Trainer(model=model, lr_scheduler=lr_scheduler, optimizer=optimizer, data_loader_train=data_loader_train,
-                               data_loader_val=data_loader_val, data_loader_test=data_loader_test, global_labels_val=global_labels_val,
-                               global_labels_test=global_labels_test, gpu_id=rank)
+                               data_loader_val=data_loader_val, global_labels_val=global_labels_val, gpu_id=rank)
     
     # Eval
     evaluation_stats = trainer.evaluate(eval=False)

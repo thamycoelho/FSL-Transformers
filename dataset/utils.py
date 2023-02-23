@@ -53,13 +53,17 @@ def get_sets(args):
 
 
 def get_loaders(args):
+    print("get datasets")
     # datasets
-    dataset_train, dataset_vals, dataset_test = get_sets(args)
+    if args.eval:
+        _, _, dataset_vals = get_sets(args)
+    else:
+        dataset_train, dataset_vals, _ = get_sets(args)
     
     global_labels_val = dataset_vals.mapCls
-    global_labels_test = dataset_test.mapCls
 
     # Val loader
+    print("prepare val dataset")
     if not isinstance(dataset_vals, dict):
         dataset_vals = {'single': dataset_vals}
         
@@ -84,31 +88,11 @@ def get_loaders(args):
     if 'single' in dataset_vals:
         data_loader_val = data_loader_val['single']
 
-    # Test loader
-    if not isinstance(dataset_test, dict):
-        dataset_test = {'single': dataset_test}
-    data_loader_test = {}
-
-    for j, (source, dataset_test) in enumerate(dataset_test.items()):
-        sampler_test = torch.utils.data.SequentialSampler(dataset_test)
-
-        generator = torch.Generator()
-        generator.manual_seed(args.seed + 10000 + j)
-
-        data_loader = torch.utils.data.DataLoader(
-            dataset_test, sampler=sampler_test,
-            batch_size=1,
-            num_workers=3, # more workers can take too much CPU
-            pin_memory=args.pin_mem,
-            drop_last=False,
-            generator=generator
-        )
-        data_loader_test[source] = data_loader
-
-    if 'single' in dataset_test:
-        data_loader_test = data_loader_test['single']
+    if args.eval:
+        return None, data_loader_val, global_labels_val
 
     # Train loader
+    print("prepare train dataset")
     sampler_train = DistributedSampler(dataset_train)
 
     generator = torch.Generator()
@@ -124,4 +108,4 @@ def get_loaders(args):
         shuffle=False
     )
 
-    return data_loader_train, data_loader_val, data_loader_test, global_labels_val, global_labels_test
+    return data_loader_train, data_loader_val, global_labels_val

@@ -12,9 +12,7 @@ class Trainer:
                 optimizer,
                 data_loader_train,
                 data_loader_val,
-                data_loader_test,
                 global_labels_val,
-                global_labels_test,   
                 gpu_id) -> None:
         self.model = model.to(gpu_id)
         self.lr_scheduler = lr_scheduler
@@ -26,9 +24,7 @@ class Trainer:
         
         self.data_loader_train = data_loader_train
         self.data_loader_val = data_loader_val
-        self.data_loader_test = data_loader_test
         self.global_labels_val = global_labels_val
-        self.global_labels_test = global_labels_test
 
     def train(self,
               epochs: int
@@ -93,8 +89,8 @@ class Trainer:
     @torch.no_grad()
     def evaluate(self, 
                 eval=False):
-        data_loader = self.data_loader_test if eval else self.data_loader_val
-        gloal_label_id = self.global_labels_test if eval else self.global_labels_val
+        data_loader = self.data_loader_val if eval else self.data_loader_val
+        gloal_label_id = self.global_labels_val if eval else self.global_labels_val
 
         # Logger 
         metric_logger = logger.MetricLogger(delimiter="  ")

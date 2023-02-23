@@ -115,8 +115,6 @@ class Trainer:
             x.to(self.gpu_id)
             y.to(self.gpu_id)
 
-
-            
             with torch.cuda.amp.autocast():
                 logits = self.model(query=x, support=SupportTensor, support_labels=SupportLabel)
                 
@@ -125,6 +123,8 @@ class Trainer:
             pred = torch.argmax(logits, dim=-1)
             
             # Calculate accuracy
+            print("logits:", logits)
+            print("y:", y)
             acc = accuracy(logits, y)[0]
             all_acc.append(acc.item())
             

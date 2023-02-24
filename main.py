@@ -3,18 +3,26 @@ import training
 import json
 import time
 import datetime
+import sys
 import torch.multiprocessing as mp
 
 from timm.scheduler import create_scheduler
-
+from pathlib import Path
 
 from dataset import get_loaders
 from utils import get_args_parser, generate_confusion_matrix, ddp_setup
 from model import DeiTForFewShot
 
 def main(rank, world_size, args):
+    # Deal with output dir
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    with (output_dir / "log.txt").open("a") as f:
+            f.write(" ".join(sys.argv) + "\n")
+
     # Set device
-    ddp_setup(rank, world_size)    
+    ddp_setup(rank, world_size)  
+  
     # Get data loaders
     print('Getting dataset')
     data_loader_train, data_loader_val, global_labels_val = get_loaders(args)
@@ -32,7 +40,7 @@ def main(rank, world_size, args):
 
     # Define Trainer 
     trainer = training.Trainer(model=model, lr_scheduler=lr_scheduler, optimizer=optimizer, data_loader_train=data_loader_train,
-                               data_loader_val=data_loader_val, global_labels_val=global_labels_val, gpu_id=rank, output_dir=args.output_dir)
+                               data_loader_val=data_loader_val, global_labels_val=global_labels_val, gpu_id=rank, output_dir=output_dir)
     
     # Eval
     evaluation_stats = trainer.evaluate(eval=args.eval)
@@ -43,7 +51,7 @@ def main(rank, world_size, args):
         print(f"Start training for {args.epochs} epochs")
         start_time = time.time()
         
-        _ = trainer.train(epochs=args.epochs)
+        _ = trainer.train(epochs=args.epochs, args=args)
 
         total_time = time.time() - start_time
         total_time_str = str(datetime.timedelta(seconds=int(total_time)))

@@ -1,4 +1,6 @@
 import torch
+import json
+
 from timm.utils import accuracy
 
 from utils import map_labels, generate_confusion_matrix
@@ -29,7 +31,8 @@ class Trainer:
         self.output_dir = output_dir
 
     def train(self,
-              epochs: int
+              epochs: int,
+              args
               ) -> None:
         max_accuracy = (0, 0)
 
@@ -40,10 +43,35 @@ class Trainer:
 
             evaluation_stats = self.evaluate(eval=False)
 
+            log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
+                     **{f'test_{k}': v for k, v in evaluation_stats.items()},
+                     'epoch': epoch}
+
+            if self.output_dir:
+                checkpoint_paths = [self.output_dir / 'checkpoint.pth', self.output_dir / 'best.pth']
+                for checkpoint_path in checkpoint_paths:
+                    state_dict = {
+                        'model': self.model.state_dict(),
+                        'optimizer': self.optimizer.state_dict(),
+                        'lr_scheduler': self.lr_scheduler.state_dict(),
+                        'epoch': epoch,
+                        'args': args,
+                    }
+                    
+                    torch.save(state_dict, checkpoint_path)
+                    if evaluation_stats["acc"] <= max_accuracy[0]:
+                        break # do not save best.pth
+                
             print(f"Accuracy on validation dataset: {evaluation_stats['acc']:.2f}% ± {evaluation_stats['confidence_interval']:.4f}%")
 
             max_accuracy = max(max_accuracy, (evaluation_stats['acc'], evaluation_stats['confidence_interval']), key= lambda x: x[0])
             print(f'Max accuracy: {max_accuracy[0]:.2f}% ± {max_accuracy[1]:.4f}%')
+
+            if self.output_dir:
+                log_stats['best_test_acc'] = max_accuracy[0]
+                log_stats['confidence_interval'] = max_accuracy[1]
+                with (self.output_dir / "log.txt").open("a") as f:
+                    f.write(json.dumps(log_stats) + "\n")
 
 
     def train_one_epoch(self,
@@ -149,13 +177,17 @@ class Trainer:
         metric_logger.synchronize_between_processes()
         print('* Acc@1 {top.global_avg:.3f} ± {top.mean_confidence_interval: .4f} loss {losses.global_avg:.3f}'
             .format(top=metric_logger.acc, losses=metric_logger.loss))            
-        
+
         if eval and self.output_dir:
             generate_confusion_matrix(y_target, y_pred, list(gloal_label_id.keys()), self.output_dir)
 
         return_dict = {}
         return_dict['acc'] = metric_logger.meters['acc'].avg
         return_dict['confidence_interval'] = metric_logger.meters['acc'].mean_confidence_interval
+
+        if self.output_dir:
+            with (self.output_dir / "log.txt").open("a") as f:
+                f.write(json.dumps(return_dict) + "\n")
             
         return return_dict
         

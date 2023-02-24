@@ -5,12 +5,11 @@ import time
 import datetime
 import torch.multiprocessing as mp
 
-from timm.utils import accuracy
 from timm.scheduler import create_scheduler
 
 
 from dataset import get_loaders
-from utils import get_args_parser, generate_confusion_matrix, map_labels, to_device, get_device, ddp_setup
+from utils import get_args_parser, generate_confusion_matrix, ddp_setup
 from model import DeiTForFewShot
 
 def main(rank, world_size, args):
@@ -38,8 +37,10 @@ def main(rank, world_size, args):
     # Eval
     evaluation_stats = trainer.evaluate(eval=False)
     print(f"Accuracy on validation dataset: {evaluation_stats['acc']:.2f}% ± {evaluation_stats['confidence_interval']:.4f}%")
-    
-    if not args.eval:
+
+    if args.eval:
+        generate_confusion_matrix(evaluation_stats['y_target'], evaluation_stats['y_pred'], list(global_labels_val.keys()) , args.output_dir)
+    else:
         # Training 
         print(f"Start training for {args.epochs} epochs")
         start_time = time.time()

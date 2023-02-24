@@ -29,7 +29,7 @@ class Trainer:
     def train(self,
               epochs: int
               ) -> None:
-        max_accuracy = 0
+        max_accuracy = (0, 0)
 
         for epoch in range(epochs):
             train_stats = self.train_one_epoch(epoch)
@@ -40,8 +40,8 @@ class Trainer:
 
             print(f"Accuracy on validation dataset: {evaluation_stats['acc']:.2f}% ± {evaluation_stats['confidence_interval']:.4f}%")
 
-            max_accuracy = max(max_accuracy, evaluation_stats['acc'])
-            print(f'Max accuracy: {max_accuracy:.2f}%')
+            max_accuracy = max(max_accuracy, (evaluation_stats['acc'], evaluation_stats['confidence_interval']), key= lambda x: x[0])
+            print(f'Max accuracy: {max_accuracy[0]:.2f}% ± {max_accuracy[1]:.4f}%')
 
 
     def train_one_epoch(self,
@@ -146,7 +146,7 @@ class Trainer:
         
         metric_logger.synchronize_between_processes()
         print('* Acc@1 {top.global_avg:.3f} ± {top.mean_confidence_interval: .4f} loss {losses.global_avg:.3f}'
-            .format(top=metric_logger.acc, losses=metric_logger.loss))
+            .format(top=metric_logger.acc, losses=metric_logger.loss))            
         
         return_dict = {}
         return_dict['acc'] = metric_logger.meters['acc'].avg

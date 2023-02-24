@@ -32,7 +32,7 @@ def main(rank, world_size, args):
 
     # Define Trainer 
     trainer = training.Trainer(model=model, lr_scheduler=lr_scheduler, optimizer=optimizer, data_loader_train=data_loader_train,
-                               data_loader_val=data_loader_val, global_labels_val=global_labels_val, gpu_id=rank, output_dir=args.output)
+                               data_loader_val=data_loader_val, global_labels_val=global_labels_val, gpu_id=rank, output_dir=args.output_dir)
     
     # Eval
     evaluation_stats = trainer.evaluate(eval=args.eval)

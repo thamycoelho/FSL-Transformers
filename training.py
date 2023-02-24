@@ -156,8 +156,6 @@ class Trainer:
         return_dict = {}
         return_dict['acc'] = metric_logger.meters['acc'].avg
         return_dict['confidence_interval'] = metric_logger.meters['acc'].mean_confidence_interval
-        return_dict['y_pred'] = y_pred
-        return_dict['y_target'] = y_target
             
         return return_dict
         

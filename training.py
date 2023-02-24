@@ -36,7 +36,7 @@ class Trainer:
               ) -> None:
         max_accuracy = (0, 0)
 
-        for epoch in range(epochs):
+        for epoch in range(args.start_epoch, epochs):
             train_stats = self.train_one_epoch(epoch)
 
             self.lr_scheduler.step(epoch)

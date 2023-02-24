@@ -76,7 +76,7 @@ class Trainer:
             
             self.optimizer.zero_grad()
             self.optimizer.step()
-            self.lr_scheduler.step()
+            self.lr_scheduler.step(epoch)
                     
             lr = self.optimizer.param_groups[0]["lr"]
             metric_logger.update(loss=loss_value)

@@ -1,7 +1,7 @@
 import torch
 from timm.utils import accuracy
 
-from utils import map_labels
+from utils import map_labels, generate_confusion_matrix
 from torch.nn.parallel import DistributedDataParallel as DDP
 import utils.logger as logger
 
@@ -13,7 +13,8 @@ class Trainer:
                 data_loader_train,
                 data_loader_val,
                 global_labels_val,
-                gpu_id) -> None:
+                gpu_id,
+                output) -> None:
         self.model = model.to(gpu_id)
         self.lr_scheduler = lr_scheduler
         self.optimizer = optimizer
@@ -25,6 +26,7 @@ class Trainer:
         self.data_loader_train = data_loader_train
         self.data_loader_val = data_loader_val
         self.global_labels_val = global_labels_val
+        self.output_dir = output
 
     def train(self,
               epochs: int
@@ -92,8 +94,8 @@ class Trainer:
     @torch.no_grad()
     def evaluate(self, 
                 eval=False):
-        data_loader = self.data_loader_val if eval else self.data_loader_val
-        gloal_label_id = self.global_labels_val if eval else self.global_labels_val
+        data_loader = self.data_loader_val 
+        gloal_label_id = self.global_labels_val 
 
         # Logger 
         metric_logger = logger.MetricLogger(delimiter="  ")
@@ -148,6 +150,9 @@ class Trainer:
         print('* Acc@1 {top.global_avg:.3f} ± {top.mean_confidence_interval: .4f} loss {losses.global_avg:.3f}'
             .format(top=metric_logger.acc, losses=metric_logger.loss))            
         
+        if eval and self.output_dir:
+            generate_confusion_matrix(y_target, y_pred, list(gloal_label_id.keys()), self.output_dir)
+
         return_dict = {}
         return_dict['acc'] = metric_logger.meters['acc'].avg
         return_dict['confidence_interval'] = metric_logger.meters['acc'].mean_confidence_interval

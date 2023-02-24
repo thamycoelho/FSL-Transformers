@@ -32,15 +32,13 @@ def main(rank, world_size, args):
 
     # Define Trainer 
     trainer = training.Trainer(model=model, lr_scheduler=lr_scheduler, optimizer=optimizer, data_loader_train=data_loader_train,
-                               data_loader_val=data_loader_val, global_labels_val=global_labels_val, gpu_id=rank)
+                               data_loader_val=data_loader_val, global_labels_val=global_labels_val, gpu_id=rank, output_dir=args.output)
     
     # Eval
-    evaluation_stats = trainer.evaluate(eval=False)
+    evaluation_stats = trainer.evaluate(eval=args.eval)
     print(f"Accuracy on validation dataset: {evaluation_stats['acc']:.2f}% ± {evaluation_stats['confidence_interval']:.4f}%")
 
-    if args.eval:
-        generate_confusion_matrix(evaluation_stats['y_target'], evaluation_stats['y_pred'], list(global_labels_val.keys()) , args.output_dir)
-    else:
+    if not args.eval:
         # Training 
         print(f"Start training for {args.epochs} epochs")
         start_time = time.time()

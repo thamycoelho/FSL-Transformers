@@ -71,7 +71,7 @@ class Trainer:
             
             logits = torch.squeeze(logits)
             y = y.view(-1)
-            loss = self.loss_func(logits, y)
+            loss = self.loss_function(logits, y)
             loss_value = loss.item()
             
             self.optimizer.zero_grad()

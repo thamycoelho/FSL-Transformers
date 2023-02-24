@@ -42,7 +42,7 @@ def main(rank, world_size, args):
     if args.resume:
         checkpoint = torch.load(args.resume, map_location='cpu')
 
-        model.module.load_state_dict(checkpoint['model'])
+        model.load_state_dict(checkpoint['model'])
 
         if not args.eval and 'optimizer' in checkpoint and 'lr_scheduler' in checkpoint and 'epoch' in checkpoint:
             optimizer.load_state_dict(checkpoint['optimizer'])

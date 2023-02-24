@@ -38,6 +38,19 @@ def main(rank, world_size, args):
 
     lr_scheduler , _ = create_scheduler(args, optimizer)
 
+    # Resume training from checkpoint
+    if args.resume:
+        checkpoint = torch.load(args.resume, map_location='cpu')
+
+        model.load_state_dict(checkpoint['model'])
+
+        if not args.eval and 'optimizer' in checkpoint and 'lr_scheduler' in checkpoint and 'epoch' in checkpoint:
+            optimizer.load_state_dict(checkpoint['optimizer'])
+            lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
+            args.start_epoch = checkpoint['epoch'] + 1
+
+        print(f'Resume from {args.resume} at epoch {args.start_epoch}.')
+
     # Define Trainer 
     trainer = training.Trainer(model=model, lr_scheduler=lr_scheduler, optimizer=optimizer, data_loader_train=data_loader_train,
                                data_loader_val=data_loader_val, global_labels_val=global_labels_val, gpu_id=rank, output_dir=output_dir)

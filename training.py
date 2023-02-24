@@ -14,7 +14,7 @@ class Trainer:
                 data_loader_val,
                 global_labels_val,
                 gpu_id,
-                output) -> None:
+                output_dir) -> None:
         self.model = model.to(gpu_id)
         self.lr_scheduler = lr_scheduler
         self.optimizer = optimizer
@@ -26,7 +26,7 @@ class Trainer:
         self.data_loader_train = data_loader_train
         self.data_loader_val = data_loader_val
         self.global_labels_val = global_labels_val
-        self.output_dir = output
+        self.output_dir = output_dir
 
     def train(self,
               epochs: int

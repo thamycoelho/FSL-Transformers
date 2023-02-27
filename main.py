@@ -13,7 +13,7 @@ from dataset import get_loaders
 from utils import get_args_parser, generate_confusion_matrix, ddp_setup
 from model import DeiTForFewShot
 
-def main(rank, world_size, args):
+def main(args):
     # Deal with output dir
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -21,8 +21,8 @@ def main(rank, world_size, args):
             f.write(" ".join(sys.argv) + "\n")
 
     # Set device
-    ddp_setup(rank, world_size)  
-  
+    device = torch.device(args.device)
+
     # Get data loaders
     print('Getting dataset')
     data_loader_train, data_loader_val, global_labels_val = get_loaders(args)
@@ -53,7 +53,7 @@ def main(rank, world_size, args):
 
     # Define Trainer 
     trainer = training.Trainer(model=model, lr_scheduler=lr_scheduler, optimizer=optimizer, data_loader_train=data_loader_train,
-                               data_loader_val=data_loader_val, global_labels_val=global_labels_val, gpu_id=rank, output_dir=output_dir)
+                               data_loader_val=data_loader_val, global_labels_val=global_labels_val, device=device, output_dir=output_dir)
     
     # Eval
     evaluation_stats = trainer.evaluate(eval=args.eval)
@@ -75,5 +75,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
 
-    world_size = torch.cuda.device_count()
-    mp.spawn(main, args=(world_size, args), nprocs=world_size)
+    main(args)

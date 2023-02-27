@@ -15,15 +15,14 @@ class Trainer:
                 data_loader_train,
                 data_loader_val,
                 global_labels_val,
-                gpu_id,
+                device,
                 output_dir) -> None:
-        self.model = model.to(gpu_id)
+        self.model = model.to(device)
         self.lr_scheduler = lr_scheduler
         self.optimizer = optimizer
         self.loss_function = torch.nn.CrossEntropyLoss()
 
-        self.gpu_id = gpu_id
-        self.model = DDP(model, device_ids=[gpu_id])
+        self.device = device
         
         self.data_loader_train = data_loader_train
         self.data_loader_val = data_loader_val
@@ -87,13 +86,12 @@ class Trainer:
         self.data_loader_train.sampler.set_epoch(epoch)
         self.model.train()
         
-        self.data_loader_train.sampler.set_epoch(epoch)
         for batch in metric_logger.log_every(self.data_loader_train, 10, header):
             SupportTensor, SupportLabel, x, y, _ = batch
-            SupportTensor = SupportTensor.to(self.gpu_id)
-            SupportLabel = SupportLabel.to(self.gpu_id)
-            x = x.to(self.gpu_id)
-            y = y.to(self.gpu_id)
+            SupportTensor = SupportTensor.to(self.device)
+            SupportLabel = SupportLabel.to(self.device)
+            x = x.to(self.device)
+            y = y.to(self.device)
             
             # Forward 
             with torch.cuda.amp.autocast():
@@ -140,10 +138,10 @@ class Trainer:
         
         for ii, batch in enumerate(metric_logger.log_every(data_loader, 10, header)):
             SupportTensor, SupportLabel, x, y, label_to_class = batch
-            SupportTensor = SupportTensor.to(self.gpu_id)
-            SupportLabel = SupportLabel.to(self.gpu_id)
-            x = x.to(self.gpu_id)
-            y = y.to(self.gpu_id)
+            SupportTensor = SupportTensor.to(self.device)
+            SupportLabel = SupportLabel.to(self.device)
+            x = x.to(self.device)
+            y = y.to(self.device)
 
             with torch.cuda.amp.autocast():
                 logits = self.model(query=x, support=SupportTensor, support_labels=SupportLabel)

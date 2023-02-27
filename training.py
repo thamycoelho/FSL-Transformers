@@ -50,7 +50,7 @@ class Trainer:
                 checkpoint_paths = [self.output_dir / 'checkpoint.pth', self.output_dir / 'best.pth']
                 for checkpoint_path in checkpoint_paths:
                     state_dict = {
-                        'model': self.model.module.state_dict(),
+                        'model': self.model.state_dict(),
                         'optimizer': self.optimizer.state_dict(),
                         'lr_scheduler': self.lr_scheduler.state_dict(),
                         'epoch': epoch,

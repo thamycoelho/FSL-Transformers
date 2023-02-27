@@ -51,7 +51,7 @@ def _save_confusion_matrix(cm,
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label\naccuracy={:0.4f}; misclass={:0.4f}'.format(accuracy, misclass))
-    plt.savefig(save_path + '/confusion_matrix.png')
+    plt.savefig(save_path / "confusion_matrix.png")
 
 def generate_confusion_matrix(y_true, y_pred, label_names, path):
     

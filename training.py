@@ -83,7 +83,6 @@ class Trainer:
         metric_logger.add_meter('n_imgs', logger.SmoothedValue(window_size=1, fmt='{value:d}'))
         header = 'Epoch: [{}]'.format(epoch)
 
-        self.data_loader_train.sampler.set_epoch(epoch)
         self.model.train()
         
         for batch in metric_logger.log_every(self.data_loader_train, 10, header):

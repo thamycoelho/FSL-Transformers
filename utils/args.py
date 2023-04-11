@@ -20,7 +20,7 @@ def get_args_parser():
    # Few-shot parameters 
    parser.add_argument("--nClsEpisode", default=8, type=int,
                      help="Number of categories in each episode.")
-   parser.add_argument("--nSupport", default=1, type=int,
+   parser.add_argument("--nSupport", default=5, type=int,
                      help="Number of samples per category in the support set.")
    parser.add_argument("--nQuery", default=15, type=int,
                      help="Number of samples per category in the query set.")

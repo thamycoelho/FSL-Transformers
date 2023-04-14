@@ -72,10 +72,10 @@ class DeiTForFewShot(DeiTPreTrainedModel):
         support_features = support_features.view(B, nSupp, -1)
         
         # Get prototypes (avg pooling)
-        support_labels_1hot = F.one_hot(support_labels, n_way).transpose(1, 2)
-        prototypes = torch.bmm(support_labels_1hot.float(), support_features)
-        prototypes = prototypes / support_labels_1hot.sum(dim=2, keepdim=True)
-        
+        sorted_support_labels = torch.sort(support_labels)
+        support_features = F.embedding(sorted_support_labels.indices.view(n_way, support.shape[1] // n_way), support_features.squeeze())
+        prototypes = torch.mean(support_features, dim=1).unsqueeze(0)
+
         # Get query featurhttps://www.linkedin.com/in/camilaherculano/es 
         query_features = self.deit(
             query.view(-1, C, H, W),

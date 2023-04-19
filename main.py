@@ -29,8 +29,7 @@ def main(args):
     
     # Create model from pretrained backbone
     print('Uploading model')
-    model = DeiTForFewShot.from_pretrained("facebook/deit-base-distilled-patch16-224")
-    model.config.update({"id2label": global_labels_val})
+    model = DeiTForFewShot()
     
     # Optimizers, LR and Loss function
     print('Defining optimizers')

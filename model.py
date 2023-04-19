@@ -1,4 +1,4 @@
-from transformers import DeiTPreTrainedModel, DeiTConfig, DeiTFeatureExtractor, DeiTModel
+from transformers import DeiTPreTrainedModel, DeiTConfig, DeiTFeatureExtractor, DeiTModel, AutoModel, AutoConfig
 from transformers.modeling_outputs import ImageClassifierOutput
 import torch
 from torch import nn
@@ -15,7 +15,6 @@ class ProtoNet(nn.Module):
     def forward(self, support, query, mode="cos_sim"):
         support = F.normalize(support, p=2, dim=support.dim()-1, eps=1e-12)
         query = F.normalize(query, p=2, dim=query.dim()-1, eps=1e-12)
-        # proto = torch.mean(support, dim=0)
         
         if mode == "cos_sim":
             score = query @ support.transpose(1, 2)
@@ -23,18 +22,16 @@ class ProtoNet(nn.Module):
         return score
         
         
-class DeiTForFewShot(DeiTPreTrainedModel):
-    def __init__(self, config: DeiTConfig) -> None:
-        super().__init__(config)
+class DeiTForFewShot(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
         
-        self.num_labels = config.num_labels
-        self.deit = DeiTModel(config, add_pooling_layer=False)
+        # self.num_labels = config.num_labels
+        # self.deit = DeiTModel(config, add_pooling_layer=False)
+        self.deit = DeiTModel.from_pretrained("facebook/deit-base-distilled-patch16-224", add_pooling_layer=False)
         
         # Classifier 
         self.classifier = ProtoNet()
-        
-        # Initialize weights and apply final processing
-        self.post_init()
         
     def forward(
         self,

@@ -10,7 +10,7 @@ from timm.scheduler import create_scheduler
 from pathlib import Path
 
 from dataset import get_loaders
-from utils import get_args_parser, generate_confusion_matrix, ddp_setup
+from utils import get_args_parser
 from model import DeiTForFewShot
 
 def main(args):

@@ -7,7 +7,7 @@ def get_backbone(backbone):
         backbone: name of the pretrained model that will be used as backbone 
     """
     if backbone == "deit":
-        backbone = DeiTModel.from_pretrained("facebook/deit-base-distilled-patch16-224", add_pooling_layer=False)
+        backbone = DeiTModel.from_pretrained("facebook/deit-base-distilled-patch16-224")
 
     elif backbone == "resnet50":
         backbone = ResNetModel.from_pretrained("microsoft/resnet-50")

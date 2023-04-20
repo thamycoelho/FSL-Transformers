@@ -13,10 +13,12 @@ def get_backbone(backbone):
         backbone = ResNetModel.from_pretrained("microsoft/resnet-50")
 
     elif backbone == "dino":
-        backbone = ViTModel.from_pretrained('facebook/dino-vits8')
+        backbone = ViTModel.from_pretrained('facebook/dino-vits16')
 
     elif backbone == "resnet50_dino":
         backbone = ResNetModel.from_pretrained('Ramos-Ramos/dino-resnet-50')
 
     else:
         raise ValueError(f'{backbone} is not an backbone option.')
+    
+    return backbone

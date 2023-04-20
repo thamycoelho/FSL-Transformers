@@ -15,7 +15,7 @@ from model import DeiTForFewShot
 
 def main(args):
     # Deal with output dir
-    output_dir = Path(args.output_dir)
+    output_dir = Path(args.output_dir + "/" + args.dataset + "/" + args.experiment_name)
     output_dir.mkdir(parents=True, exist_ok=True)
     with (output_dir / "log.txt").open("a") as f:
             f.write(" ".join(sys.argv) + "\n")

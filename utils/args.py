@@ -11,6 +11,7 @@ def get_args_parser():
                      help='path where to save, empty for no saving')
    parser.add_argument('--seed', default=0, type=int)
    parser.add_argument('--deterministic', default=False, type=bool)
+   parser.add_argument('--experiment_name', default="", help='name of the experiment running to create apropriate file.')
 
    # Dataset parameters
    parser.add_argument("--dataset", choices=["places", "places_600"],

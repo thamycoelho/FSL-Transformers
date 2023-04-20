@@ -29,6 +29,7 @@ def get_args_parser():
 
    # Model params
    parser.add_argument('--pretrained_weights', default='', type=str, help="Path to pretrained weights to evaluate.")
+   parser.add_argument('--backbone', default='deit',choices=['deit', 'resnet50', 'dino', 'resnet50_dino'])
 
    # Deployment params
    parser.add_argument('--aug_prob', default=0.9, type=float, help='Probability of applying data augmentation during meta-testing')

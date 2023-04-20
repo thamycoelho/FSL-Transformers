@@ -1,13 +1,22 @@
-import torch
-import os
-from torch.distributed import init_process_group
+from transformers import DeiTModel, ViTModel, ResNetModel
 
-def ddp_setup(rank, world_size):
+
+def get_backbone(backbone):
     """
     Args:
-        rank: Unique identifier of each process
-        world_size: Total number of processes
+        backbone: name of the pretrained model that will be used as backbone 
     """
-    os.environ["MASTER_ADDR"] = "localhost"
-    os.environ["MASTER_PORT"] = "10012"
-    init_process_group(backend="nccl", rank=rank, world_size=world_size)
+    if backbone == "deit":
+        backbone = DeiTModel.from_pretrained("facebook/deit-base-distilled-patch16-224", add_pooling_layer=False)
+
+    elif backbone == "resnet50":
+        backbone = ResNetModel.from_pretrained("microsoft/resnet-50")
+
+    elif backbone == "dino":
+        backbone = ViTModel.from_pretrained('facebook/dino-vits8')
+
+    elif backbone == "resnet50_dino":
+        backbone = ResNetModel.from_pretrained('Ramos-Ramos/dino-resnet-50')
+
+    else:
+        raise ValueError(f'{backbone} is not an backbone option.')

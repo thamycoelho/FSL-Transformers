@@ -24,7 +24,7 @@ class DeiTForFewShot(nn.Module):
         
         # self.num_labels = config.num_labels
         # self.deit = DeiTModel(config, add_pooling_layer=False)
-        self.backbone = get_backbone(backbone)
+        self.backbone, self.image_processor = get_backbone(backbone)
 
         # Classifier 
         self.classifier = ProtoNet()
@@ -46,6 +46,11 @@ class DeiTForFewShot(nn.Module):
         n_way = support_labels.max() + 1
         
         B, nSupp, C, H, W = support.shape
+
+        # Prepare data
+        if self.image_processor:
+            support = self.image_processor(support)
+            query = self.image_processor(query)
 
         # Get support features
         support_features = self.backbone(

@@ -47,6 +47,8 @@ class DeiTForFewShot(nn.Module):
         
         B, nSupp, C, H, W = support.shape
 
+        support = support.view(-1, C, H, W)
+        query =  query.view(-1, C, H, W)
         # Prepare data
         if self.image_processor:
             support = self.image_processor(support)
@@ -54,7 +56,7 @@ class DeiTForFewShot(nn.Module):
 
         # Get support features
         support_features = self.backbone(
-            support.view(-1, C, H, W),
+            support,
         )
         support_features = support_features[0][:,0,:]
         support_features = support_features.view(B, nSupp, -1)
@@ -66,7 +68,7 @@ class DeiTForFewShot(nn.Module):
 
         # Get query featurhttps://www.linkedin.com/in/camilaherculano/es 
         query_features = self.backbone(
-            query.view(-1, C, H, W),
+            query,
         )
         
         query_features = query_features[0][:,0,:]

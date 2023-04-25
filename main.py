@@ -42,11 +42,12 @@ def main(args):
         checkpoint = torch.load(args.resume, map_location='cpu')
 
         model.load_state_dict(checkpoint['model'])
+        args.start_epoch = checkpoint['epoch']
 
         if not args.eval and 'optimizer' in checkpoint and 'lr_scheduler' in checkpoint and 'epoch' in checkpoint:
             optimizer.load_state_dict(checkpoint['optimizer'])
             lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
-            args.start_epoch = checkpoint['epoch'] + 1
+            args.start_epoch += 1
 
         print(f'Resume from {args.resume} at epoch {args.start_epoch}.')
 

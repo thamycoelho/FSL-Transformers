@@ -35,7 +35,8 @@ def main(args):
     print('Defining optimizers')
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-    lr_scheduler , _ = create_scheduler(args, optimizer)
+    # lr_scheduler , _ = create_scheduler(args, optimizer)
+    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.decay_epochs, gamma=args.decay_rate)
 
     # Resume training from checkpoint
     if args.resume:

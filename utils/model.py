@@ -1,4 +1,5 @@
 from transformers import DeiTModel, ViTModel, ResNetModel, AutoImageProcessor
+from torchvision.models.resnet import resnet50
 
 
 def get_backbone(backbone):
@@ -11,8 +12,10 @@ def get_backbone(backbone):
         image_processor = None
 
     elif backbone == "resnet50":
-        backbone = ResNetModel.from_pretrained("microsoft/resnet-50")
-        image_processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
+        # backbone = ResNetModel.from_pretrained("microsoft/resnet-50")
+        # image_processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50"
+        backbone = resnet50()
+        image_processor = None
 
     elif backbone == "dino":
         backbone = ViTModel.from_pretrained('facebook/dino-vits16')

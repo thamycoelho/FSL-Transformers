@@ -7,8 +7,8 @@ def dataset_setting(nSupport, img_size=32):
 
     :param int nSupport: number of support examples
     """
-    mean = [x/255.0 for x in [129.37731888,  124.10583864, 112.47758569]]
-    std = [x/255.0 for x in [68.20947949,  65.43124043,  70.45866994]]
+    mean =  [0.485, 0.456, 0.406]
+    std = [0.229, 0.224, 0.225]
     normalize = transforms.Normalize(mean=mean, std=std)
     trainTransform = transforms.Compose([
                                          #transforms.RandomCrop(32, padding=4),

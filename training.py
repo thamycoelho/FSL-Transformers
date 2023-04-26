@@ -100,8 +100,8 @@ class Trainer:
             loss_value = loss.item()
             
             self.optimizer.zero_grad()
+            loss.backward()
             self.optimizer.step()
-            self.loss_function.backward()
             self.lr_scheduler.step(epoch)
                     
             lr = self.optimizer.param_groups[0]["lr"]

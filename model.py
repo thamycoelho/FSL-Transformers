@@ -63,7 +63,7 @@ class DeiTForFewShot(nn.Module):
         
         # Get prototypes (avg pooling)
         sorted_support_labels = torch.sort(support_labels)
-        support_features = F.embedding(sorted_support_labels.indices.view(n_way, torch.div(support.shape[1], n_way, rounding_mode='trunc')), support_features.squeeze())
+        support_features = F.embedding(sorted_support_labels.indices.view(n_way, torch.div(support.shape[0], n_way, rounding_mode='trunc')), support_features.squeeze())
         prototypes = torch.mean(support_features, dim=1).unsqueeze(0)
 
         # Get query featurhttps://www.linkedin.com/in/camilaherculano/es 
@@ -72,7 +72,7 @@ class DeiTForFewShot(nn.Module):
         )
         
         query_features = query_features[0][:,0,:]
-        query_features = query_features.view(B, query.shape[1], -1)
+        query_features = query_features.view(B, query.shape[0], -1)
 
         logits = self.classifier(support=prototypes, query=query_features)
         

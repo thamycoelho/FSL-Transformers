@@ -24,6 +24,7 @@ class DeiTForFewShot(nn.Module):
         
         # self.num_labels = config.num_labels
         # self.deit = DeiTModel(config, add_pooling_layer=False)
+        self.backbone_name = backbone
         self.backbone, self.image_processor = get_backbone(backbone)
 
         # Classifier 
@@ -58,7 +59,9 @@ class DeiTForFewShot(nn.Module):
         support_features = self.backbone(
             support,
         )
-        support_features = support_features[0][:,0,:]
+
+        if self.backbone_name in ['deit', 'dino']:
+            support_features = support_features[0][:,0,:]
         support_features = support_features.view(B, nSupp, -1)
         
         # Get prototypes (avg pooling)
@@ -71,7 +74,8 @@ class DeiTForFewShot(nn.Module):
             query,
         )
         
-        query_features = query_features[0][:,0,:]
+        if self.backbone_name in ['deit', 'dino']:
+            query_features = query_features[0][:,0,:]
         query_features = query_features.view(B, query.shape[0], -1)
 
         logits = self.classifier(support=prototypes, query=query_features)

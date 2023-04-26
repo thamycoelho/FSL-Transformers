@@ -38,8 +38,6 @@ class Trainer:
         for epoch in range(args.start_epoch, epochs):
             train_stats = self.train_one_epoch(epoch)
 
-            self.lr_scheduler.step(epoch)
-
             evaluation_stats = self.evaluate(eval=False)
 
             log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
@@ -103,6 +101,7 @@ class Trainer:
             
             self.optimizer.zero_grad()
             self.optimizer.step()
+            self.loss_function.backward()
             self.lr_scheduler.step(epoch)
                     
             lr = self.optimizer.param_groups[0]["lr"]

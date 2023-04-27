@@ -14,7 +14,7 @@ def get_backbone(backbone):
     elif backbone == "resnet50":
         # backbone = ResNetModel.from_pretrained("microsoft/resnet-50")
         # image_processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50"
-        backbone = resnet50()
+        backbone = resnet50(weights='ResNet50_Weights.DEFAULT')
         image_processor = None
 
     elif backbone == "dino":

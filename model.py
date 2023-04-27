@@ -25,7 +25,7 @@ class DeiTForFewShot(nn.Module):
         # self.num_labels = config.num_labels
         # self.deit = DeiTModel(config, add_pooling_layer=False)
         self.backbone_name = backbone
-        self.backbone, self.image_processor = get_backbone(backbone)
+        self.backbone = get_backbone(backbone)
 
         # Classifier 
         self.classifier = ProtoNet()

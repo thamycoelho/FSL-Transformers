@@ -14,7 +14,7 @@ def get_args_parser():
    parser.add_argument('--experiment_name', default="", help='name of the experiment running to create apropriate file.')
 
    # Dataset parameters
-   parser.add_argument("--dataset", choices=["places", "places_600"],
+   parser.add_argument("--dataset", choices=["places", "places_600", "test"],
                      default="places_600",
                      help="Which few-shot dataset.")
 
@@ -31,6 +31,7 @@ def get_args_parser():
    # Model params
    parser.add_argument('--pretrained_weights', default='', type=str, help="Path to pretrained weights to evaluate.")
    parser.add_argument('--backbone', default='deit',choices=['deit', 'resnet50', 'dino', 'resnet50_dino'])
+   parser.add_argument('--aggregator', default='average', choices=['average', 'max', 'log_sum_exp'])
 
    # Deployment params
    parser.add_argument('--aug_prob', default=0.9, type=float, help='Probability of applying data augmentation during meta-testing')
@@ -47,7 +48,7 @@ def get_args_parser():
    # Learning rate schedule parameters
    parser.add_argument('--sched', default='cosine', type=str, metavar='SCHEDULER',
                      help='LR scheduler (default: "cosine"')
-   parser.add_argument('--lr', type=float, default=5e-5, metavar='LR',
+   parser.add_argument('--lr', type=float, default=5e-4, metavar='LR',
                      help='learning rate (default: 5e-4)')
    parser.add_argument('--lr-noise', type=float, nargs='+', default=None, metavar='pct, pct',
                      help='learning rate noise on/off epoch percentages')

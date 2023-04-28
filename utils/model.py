@@ -30,3 +30,22 @@ def get_backbone(backbone):
         raise ValueError(f'{backbone} is not an backbone option.')
     
     return backbone
+
+
+def get_aggregator(aggregator, support_features):
+    """
+    Args:
+        backbone: name of the aggregator to be used to generate prototypes
+    """
+    if aggregator == 'average':
+        prototypes = torch.mean(support_features, dim=1).unsqueeze(0)
+    
+    elif aggregator == 'max':
+        prototypes, _ = torch.max(support_features, dim=1)
+        prototypes = prototypes.unsqueeze(0)
+
+    elif aggregator == 'log_sum_exp':
+        prototypes = torch.logsumexp(support_features, dim=1).unsqueeze(0)
+
+    return prototypes
+        

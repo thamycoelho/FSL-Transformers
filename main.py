@@ -29,7 +29,7 @@ def main(args):
     
     # Create model from pretrained backbone
     print('Uploading model')
-    model = DeiTForFewShot(args.backbone)
+    model = DeiTForFewShot(args.backbone, args.aggregator)
     
     # Optimizers, LR and Loss function
     print('Defining optimizers')

@@ -1,6 +1,7 @@
 from transformers import DeiTModel, ViTModel, ResNetModel, AutoImageProcessor
 from torchvision.models.resnet import resnet50
 import torch
+import torch.nn as nn
 
 
 def get_backbone(backbone):
@@ -46,6 +47,11 @@ def get_aggregator(aggregator, support_features):
 
     elif aggregator == 'log_sum_exp':
         prototypes = torch.logsumexp(support_features, dim=1).unsqueeze(0)
+    
+    elif aggregator == 'lp_pool':
+        kernel_size = (support_features.shape[-2], 1)
+        pooling = nn.LPPool2d(2,kernel_size)
+        prototypes = pooling(support_features).view(1, support_features.shape[0], -1)
 
     return prototypes
         

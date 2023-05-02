@@ -66,7 +66,7 @@ class DeiTForFewShot(nn.Module):
         support_features = F.embedding(sorted_support_labels.indices.view(n_way, torch.div(support.shape[0], n_way, rounding_mode='trunc')), support_features.squeeze())
         prototypes = get_aggregator(self.aggregator, support_features)
 
-        # Get query featurhttps://www.linkedin.com/in/camilaherculano/es 
+        # Get query features
         query_features = self.backbone(
             query,
         )

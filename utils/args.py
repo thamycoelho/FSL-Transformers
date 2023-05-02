@@ -89,6 +89,7 @@ def get_args_parser():
    parser.add_argument('--resume', default='', help='resume from checkpoint')
    parser.add_argument('--start_epoch', default=0, type=int, metavar='N',
                      help='start epoch')
+   parser.add_argument('--max_acc', default=None, type=tuple, help='Max accuracy obtained in training before')
    parser.add_argument('--eval', action='store_true', help='Perform evaluation only')
    parser.add_argument('--num_workers', default=10, type=int)
    parser.add_argument('--pin-mem', action='store_true',

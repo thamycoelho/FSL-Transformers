@@ -30,6 +30,7 @@ def main(args):
     # Create model from pretrained backbone
     print('Uploading model')
     model = DeiTForFewShot(args.backbone, args.aggregator)
+    model = model.to(device)
     
     # Optimizers, LR and Loss function
     print('Defining optimizers')
@@ -48,6 +49,7 @@ def main(args):
         if not args.eval and 'optimizer' in checkpoint and 'lr_scheduler' in checkpoint and 'epoch' in checkpoint:
             optimizer.load_state_dict(checkpoint['optimizer'])
             lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
+            args.max_acc = checkpoint['max_acc']
             args.start_epoch += 1
 
         print(f'Resume from {args.resume} at epoch {args.start_epoch}.')

@@ -17,7 +17,7 @@ class Trainer:
                 global_labels_val,
                 device,
                 output_dir) -> None:
-        self.model = model.to(device)
+        self.model = model
         self.lr_scheduler = lr_scheduler
         self.optimizer = optimizer
         self.loss_function = torch.nn.CrossEntropyLoss()
@@ -33,7 +33,7 @@ class Trainer:
               epochs: int,
               args
               ) -> None:
-        max_accuracy = (0, 0)
+        max_accuracy = (0, 0) if not args.max_acc else args.max_acc
 
         for epoch in range(args.start_epoch, epochs):
             train_stats = self.train_one_epoch(epoch)
@@ -52,6 +52,7 @@ class Trainer:
                         'optimizer': self.optimizer.state_dict(),
                         'lr_scheduler': self.lr_scheduler.state_dict(),
                         'epoch': epoch,
+                        'max_acc': max_accuracy,
                         'args': args,
                     }
                     

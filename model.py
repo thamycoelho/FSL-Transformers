@@ -57,7 +57,7 @@ class DeiTForFewShot(nn.Module):
             support,
         )
 
-        if self.backbone_name in ['deit', 'dino']:
+        if self.backbone_name in ['deit', 'dino', 'deit_small']:
             support_features = support_features[0][:,0,:]
         support_features = support_features.view(B, nSupp, -1)
         
@@ -71,7 +71,7 @@ class DeiTForFewShot(nn.Module):
             query,
         )
         
-        if self.backbone_name in ['deit', 'dino']:
+        if self.backbone_name in ['deit', 'dino', 'deit_small']:
             query_features = query_features[0][:,0,:]
         query_features = query_features.view(B, query.shape[0], -1)
 

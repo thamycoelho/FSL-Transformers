@@ -11,6 +11,9 @@ def get_backbone(backbone):
     """
     if backbone == "deit":
         backbone = DeiTModel.from_pretrained("facebook/deit-base-distilled-patch16-224")
+    
+    elif backbone == "deit_small":
+        backbone = DeiTModel.from_pretrained("facebook/deit-small-distilled-patch16-224")
 
     elif backbone == "resnet50":
         backbone = resnet50(weights='ResNet50_Weights.DEFAULT')

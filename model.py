@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from typing import Optional
-from utils import get_backbone, get_aggregator
+from utils import get_backbone, get_aggregator, apply_aggregator, get_output_dim
 
 class ProtoNet(nn.Module):
     def __init__(self):
@@ -19,15 +19,16 @@ class ProtoNet(nn.Module):
         
         
 class DeiTForFewShot(nn.Module):
-    def __init__(self, backbone, aggregator) -> None:
+    def __init__(self, args) -> None:
         super().__init__()
         
         # self.num_labels = config.num_labels
         # self.deit = DeiTModel(config, add_pooling_layer=False)
-        self.backbone_name = backbone
-        self.aggregator = aggregator
-        self.backbone = get_backbone(backbone)
-
+        self.backbone_name = args.backbone
+        self.aggregator_name = args.aggregator
+        self.backbone = get_backbone(self.backbone_name)
+        
+        self.aggregator = get_aggregator(self.aggregator_name, get_output_dim(self.backbone_name, args.nClsEpisode, args.nSupport))
         # Classifier 
         self.classifier = ProtoNet()
         
@@ -64,7 +65,7 @@ class DeiTForFewShot(nn.Module):
         # Get prototypes (avg pooling)
         sorted_support_labels = torch.sort(support_labels)
         support_features = F.embedding(sorted_support_labels.indices.view(n_way, torch.div(support.shape[0], n_way, rounding_mode='trunc')), support_features.squeeze())
-        prototypes = get_aggregator(self.aggregator, support_features)
+        prototypes = apply_aggregator(self.aggregator, self.aggregator_name, support_features)
 
         # Get query features
         query_features = self.backbone(

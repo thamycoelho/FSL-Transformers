@@ -172,3 +172,5 @@ utils/__pycache__/metrics.cpython-38.pyc
 utils/__pycache__/model.cpython-38.pyc
 test pooling.ipynb
 output/test/teste/log.txt
+wandb/
+logger/log.txt

@@ -14,7 +14,7 @@ config = lines[0].split()
 idx = config.index("--experiment_name")
 
 
-wandb.init(project='test', name=config[idx + 1])
+wandb.init(project='FSL-Transformers', name=config[idx + 1])
 
 
 eval = False

@@ -1,5 +1,6 @@
 import torch
 import json
+import wandb
 
 from timm.utils import accuracy
 
@@ -16,7 +17,8 @@ class Trainer:
                 data_loader_val,
                 global_labels_val,
                 device,
-                output_dir) -> None:
+                output_dir, 
+                experiment_name = None) -> None:
         self.model = model
         self.lr_scheduler = lr_scheduler
         self.optimizer = optimizer
@@ -28,6 +30,7 @@ class Trainer:
         self.data_loader_val = data_loader_val
         self.global_labels_val = global_labels_val
         self.output_dir = output_dir
+        self.experiment_name = experiment_name
 
     def train(self,
               epochs: int,
@@ -43,7 +46,7 @@ class Trainer:
             log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
                      **{f'test_{k}': v for k, v in evaluation_stats.items()},
                      'epoch': epoch}
-
+            wandb.log(log_stats)
             if self.output_dir:
                 checkpoint_paths = [self.output_dir / 'checkpoint.pth', self.output_dir / 'best.pth']
                 for checkpoint_path in checkpoint_paths:
@@ -118,7 +121,8 @@ class Trainer:
 
     @torch.no_grad()
     def evaluate(self, 
-                eval=False):
+                eval=False,
+                resume=False):
         data_loader = self.data_loader_val 
         gloal_label_id = self.global_labels_val 
 
@@ -185,7 +189,16 @@ class Trainer:
         if self.output_dir:
             with (self.output_dir / "log.txt").open("a") as f:
                 f.write(json.dumps(return_dict) + "\n")
-            
+        
+        # wandb log
+        if eval:
+            columns = ["experiment name", "finetuning", "accuracy", "confidence interval", "confision_matrix"]
+            data = [[self.experiment_name, resume, return_dict['acc'], 
+                    return_dict['confidence_interval'], 
+                    wandb.Image(str(self.output_dir / 'confusion_matrix.png'))]]
+            table = wandb.Table(columns=columns, data=data)
+            wandb.log({"Testing dataset": table})
+
         return return_dict
         
         

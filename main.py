@@ -5,6 +5,7 @@ import time
 import datetime
 import sys
 import torch.multiprocessing as mp
+import wandb
 
 from timm.scheduler import create_scheduler
 from pathlib import Path
@@ -14,6 +15,7 @@ from utils import get_args_parser
 from model import DeiTForFewShot
 
 def main(args):
+    wandb.init(project='test', name=args.experiment_name, config=args)
     # Deal with output dir
     output_dir = Path(args.output_dir + "/" + args.dataset + "/" + args.experiment_name)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -56,10 +58,12 @@ def main(args):
 
     # Define Trainer 
     trainer = training.Trainer(model=model, lr_scheduler=lr_scheduler, optimizer=optimizer, data_loader_train=data_loader_train,
-                               data_loader_val=data_loader_val, global_labels_val=global_labels_val, device=device, output_dir=output_dir)
+                               data_loader_val=data_loader_val, global_labels_val=global_labels_val, device=device, output_dir=output_dir,
+                               experiment_name=args.experiment_name)
     
     # Eval
-    evaluation_stats = trainer.evaluate(eval=args.eval)
+    resume = True if args.resume else False
+    evaluation_stats = trainer.evaluate(eval=args.eval, resume=resume)
     print(f"Accuracy on validation dataset: {evaluation_stats['acc']:.2f}% ± {evaluation_stats['confidence_interval']:.4f}%")
 
     if not args.eval:
@@ -73,9 +77,10 @@ def main(args):
         total_time_str = str(datetime.timedelta(seconds=int(total_time)))
         print('Training time {}'.format(total_time_str))
 
+    wandb.finish()
+
 if __name__ == '__main__':
     parser = get_args_parser()
     args = parser.parse_args()
-    
 
     main(args)

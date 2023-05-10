@@ -11,7 +11,7 @@ from timm.scheduler import create_scheduler
 from pathlib import Path
 
 from dataset import get_loaders
-from utils import get_args_parser
+from utils import get_args_parser, get_optimizer
 from model import DeiTForFewShot
 
 def main(args):
@@ -36,11 +36,8 @@ def main(args):
     
     # Optimizers, LR and Loss function
     print('Defining optimizers')
-    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
-
-    # lr_scheduler , _ = create_scheduler(args, optimizer)
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.decay_epochs, gamma=args.decay_rate)
-
+    optimizer, lr_scheduler = get_optimizer(args, model)
+    
     # Resume training from checkpoint
     if args.resume:
         checkpoint = torch.load(args.resume, map_location='cpu')

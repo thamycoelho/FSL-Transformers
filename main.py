@@ -9,6 +9,8 @@ import wandb
 
 from timm.scheduler import create_scheduler
 from pathlib import Path
+from PIL import Image
+Image.MAX_IMAGE_PIXELS = 933120000
 
 from dataset import get_loaders
 from utils import get_args_parser, get_optimizer

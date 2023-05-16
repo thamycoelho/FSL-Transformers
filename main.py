@@ -15,7 +15,7 @@ from utils import get_args_parser, get_optimizer
 from model import DeiTForFewShot
 
 def main(args):
-    wandb.init(project='FSL-Transformers', name=args.experiment_name, config=args)
+    wandb.init(project='Sanity-Test', name=args.experiment_name, config=args)
     # Deal with output dir
     output_dir = Path(args.output_dir + "/" + args.dataset + "/" + args.experiment_name)
     output_dir.mkdir(parents=True, exist_ok=True)

@@ -2,6 +2,7 @@ from transformers import DeiTModel, ViTModel, ResNetModel, AutoImageProcessor
 from torchvision.models.resnet import resnet50
 import torch
 import torch.nn as nn
+from timm.scheduler import create_scheduler
 
 class SelfAttnPool(nn.Module):
     def __init__(self, feature_dim, units=None, do_the_sum=True, **kwargs):
@@ -135,11 +136,14 @@ def get_optimizer(args, model):
     if args.optimizer == 'sgd':
         optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-        lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.decay_epochs, gamma=args.decay_rate)
+        if args.sched == 'cosine':
+            lr_scheduler, _ = create_scheduler(args, optimizer)
+        else:
+            lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.decay_epochs, gamma=args.decay_rate)
 
-    if args.optimizer == 'adam':
+    elif args.optimizer == 'adam':
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-        
+
         lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=args.decay_rate)
 
     return optimizer, lr_scheduler

@@ -28,7 +28,7 @@ def dataset_setting(nSupport, img_size=32):
 
     trainDir = '/datasets/thamiris/places-600/train.pkl'
     valDir = '/datasets/thamiris/places-600/val.pkl'
-    testDir = '/datasets/thamiris/places-600/test.pkl'
+    testDir = '/datasets/thamiris/places-600/train.pkl'
     episodeJson = None
 
     return trainTransform, valTransform, inputW, inputH, trainDir, valDir, testDir, episodeJson, nbCls

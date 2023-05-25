@@ -5,7 +5,6 @@ import time
 import datetime
 import sys
 import torch.multiprocessing as mp
-import wandb
 
 from timm.scheduler import create_scheduler
 from pathlib import Path
@@ -15,7 +14,6 @@ from utils import get_args_parser, get_optimizer
 from model import DeiTForFewShot
 
 def main(args):
-    wandb.init(project='FSL-Transformers', name=args.experiment_name, config=args)
     # Deal with output dir
     output_dir = Path(args.output_dir + "/" + args.dataset + "/" + args.experiment_name)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -74,7 +72,6 @@ def main(args):
         total_time_str = str(datetime.timedelta(seconds=int(total_time)))
         print('Training time {}'.format(total_time_str))
 
-    wandb.finish()
 
 if __name__ == '__main__':
     parser = get_args_parser()

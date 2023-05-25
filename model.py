@@ -7,6 +7,9 @@ from utils import get_backbone, get_aggregator, apply_aggregator, get_output_dim
 class ProtoNet(nn.Module):
     def __init__(self):
         super().__init__()
+
+        self.bias = nn.Parameter(torch.FloatTensor(1).fill_(0), requires_grad=True)
+        self.scale_cls = nn.Parameter(torch.FloatTensor(1).fill_(10), requires_grad=True)
         
     def forward(self, support, query, mode="cos_sim"):
         support = F.normalize(support, p=2, dim=support.dim()-1, eps=1e-12)
@@ -14,6 +17,7 @@ class ProtoNet(nn.Module):
         
         if mode == "cos_sim":
             score = query @ support.transpose(1, 2)
+            score = self.scale_cls * (score + self.bias)
 
         return score
         

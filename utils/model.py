@@ -138,7 +138,7 @@ def get_optimizer(args, model):
 
         if args.sched == 'cosine':
             lr_scheduler, _ = create_scheduler(args, optimizer)
-        else:
+        elif args.sched == 'step':
             lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.decay_epochs, gamma=args.decay_rate)
 
     elif args.optimizer == 'adam':

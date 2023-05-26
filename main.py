@@ -16,7 +16,7 @@ from model import DeiTForFewShot
 
 def main(args):
     if args.wandb:
-        wandb.init(project='FSL-Transformers', name=args.experiment_name, config=args)
+        wandb.init(project=args.project_name, name=args.experiment_name, config=args)
 
     # Deal with output dir
     output_dir = Path(args.output_dir + "/" + args.dataset + "/" + args.experiment_name)

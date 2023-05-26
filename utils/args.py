@@ -38,7 +38,8 @@ def get_args_parser():
    parser.add_argument('--pretrained_weights', default='', type=str, help="Path to pretrained weights to evaluate.")
    parser.add_argument('--backbone', default='deit',choices=['deit', 'resnet50', 'dino', 'resnet50_dino', 'deit_small'])
    parser.add_argument('--aggregator', default='average', choices=['average', 'max', 'log_sum_exp', 'lp_pool', 'self_attn'])
-
+   parser.add_argument('--scale-score', action='store_true', help='scale similarity scores')
+   
    # Deployment params
    parser.add_argument('--aug_prob', default=0.9, type=float, help='Probability of applying data augmentation during meta-testing')
    parser.add_argument('--aug_types', nargs="+", default=['color', 'translation'],

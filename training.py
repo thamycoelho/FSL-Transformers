@@ -41,12 +41,13 @@ class Trainer:
         for epoch in range(args.start_epoch, epochs):
             train_stats = self.train_one_epoch(epoch)
 
-            evaluation_stats = self.evaluate(eval=False)
+            evaluation_stats = self.evaluate(eval=False, wandb=args.wandb)
 
             log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
                      **{f'test_{k}': v for k, v in evaluation_stats.items()},
                      'epoch': epoch}
-            wandb.log(log_stats)
+            if args.wandb:
+                wandb.log(log_stats)
             if self.output_dir:
                 checkpoint_paths = [self.output_dir / 'checkpoint.pth', self.output_dir / 'best.pth']
                 for checkpoint_path in checkpoint_paths:
@@ -122,7 +123,8 @@ class Trainer:
     @torch.no_grad()
     def evaluate(self, 
                 eval=False,
-                resume=False):
+                resume=False,
+                wandb=True):
         data_loader = self.data_loader_val 
         gloal_label_id = self.global_labels_val 
 
@@ -193,11 +195,12 @@ class Trainer:
         # wandb log
         if eval:
             columns = ["experiment name", "finetuning", "accuracy", "confidence interval", "confision_matrix"]
-            data = [[self.experiment_name, resume, return_dict['acc'], 
-                    return_dict['confidence_interval'], 
-                    wandb.Image(str(self.output_dir / 'confusion_matrix.png'))]]
-            table = wandb.Table(columns=columns, data=data)
-            wandb.log({"Testing dataset": table})
+            if wandb:
+                data = [[self.experiment_name, resume, return_dict['acc'], 
+                        return_dict['confidence_interval'], 
+                        wandb.Image(str(self.output_dir / 'confusion_matrix.png'))]]
+                table = wandb.Table(columns=columns, data=data)
+                wandb.log({"Testing dataset": table})
 
         return return_dict
         

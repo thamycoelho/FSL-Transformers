@@ -12,6 +12,12 @@ def get_args_parser():
    parser.add_argument('--seed', default=0, type=int)
    parser.add_argument('--deterministic', default=False, type=bool)
    parser.add_argument('--experiment_name', default="", help='name of the experiment running to create apropriate file.')
+   
+   # Wandb parameters 
+   parser.add_argument("--wandb", dest='wandb', action='store_true')
+   parser.add_argument("--no-wandb", dest='wandb', action='store_false')
+   parser.set_defaults(wandb=True)
+   parser.add_argument("--project-name", default="FSL-Transformers", type=str)
 
    # Dataset parameters
    parser.add_argument("--dataset", choices=["places", "places_600", "test"],

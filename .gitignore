@@ -174,3 +174,5 @@ test pooling.ipynb
 output/test/teste/log.txt
 wandb/
 logger/log.txt
+output/test/test/confusion_matrix.png
+output/test/test/log.txt

@@ -41,7 +41,7 @@ class Trainer:
         for epoch in range(args.start_epoch, epochs):
             train_stats = self.train_one_epoch(epoch)
 
-            evaluation_stats = self.evaluate(eval=False, wandb=args.wandb)
+            evaluation_stats = self.evaluate(eval=False, record_wandb=args.wandb)
 
             log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
                      **{f'test_{k}': v for k, v in evaluation_stats.items()},
@@ -124,7 +124,7 @@ class Trainer:
     def evaluate(self, 
                 eval=False,
                 resume=False,
-                wandb=True):
+                record_wandb=True):
         data_loader = self.data_loader_val 
         gloal_label_id = self.global_labels_val 
 
@@ -193,14 +193,14 @@ class Trainer:
                 f.write(json.dumps(return_dict) + "\n")
         
         # wandb log
-        if eval:
+        if eval and record_wandb:
             columns = ["experiment name", "finetuning", "accuracy", "confidence interval", "confision_matrix"]
-            if wandb:
-                data = [[self.experiment_name, resume, return_dict['acc'], 
-                        return_dict['confidence_interval'], 
-                        wandb.Image(str(self.output_dir / 'confusion_matrix.png'))]]
-                table = wandb.Table(columns=columns, data=data)
-                wandb.log({"Testing dataset": table})
+
+            data = [[self.experiment_name, resume, return_dict['acc'], 
+                    return_dict['confidence_interval'], 
+                    wandb.Image(str(self.output_dir / 'confusion_matrix.png'))]]
+            table = wandb.Table(columns=columns, data=data)
+            wandb.log({"Testing dataset": table})
 
         return return_dict
         

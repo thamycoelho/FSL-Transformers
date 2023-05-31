@@ -62,7 +62,7 @@ def main(args):
     
     # Eval
     resume = True if args.resume else False
-    evaluation_stats = trainer.evaluate(eval=args.eval, resume=resume, wandb=args.wandb)
+    evaluation_stats = trainer.evaluate(eval=args.eval, resume=resume, record_wandb=args.wandb)
     print(f"Accuracy on validation dataset: {evaluation_stats['acc']:.2f}% ± {evaluation_stats['confidence_interval']:.4f}%")
 
     if not args.eval:

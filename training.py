@@ -6,6 +6,7 @@ from timm.utils import accuracy
 
 from utils import map_labels, generate_confusion_matrix
 from torch.nn.parallel import DistributedDataParallel as DDP
+import torch.nn.functional as nn
 import utils.logger as logger
 
 class Trainer:
@@ -39,7 +40,7 @@ class Trainer:
         max_accuracy = (0, 0) if not args.max_acc else args.max_acc
 
         for epoch in range(args.start_epoch, epochs):
-            train_stats = self.train_one_epoch(epoch)
+            train_stats = self.train_one_epoch(epoch, args.softmax)
 
             evaluation_stats = self.evaluate(eval=False, record_wandb=args.wandb)
 
@@ -77,7 +78,8 @@ class Trainer:
 
 
     def train_one_epoch(self,
-                        epoch) -> dict:
+                        epoch,
+                        softmax=False) -> dict:
         
         
         metric_logger = logger.MetricLogger(delimiter="  ")
@@ -101,6 +103,8 @@ class Trainer:
             
             logits = torch.squeeze(logits)
             y = y.view(-1)
+            if softmax:
+                logits = nn.softmax(logits, dim=1)
             loss = self.loss_function(logits, y)
             loss_value = loss.item()
             

@@ -39,7 +39,6 @@ def get_args_parser():
    parser.add_argument('--backbone', default='deit',choices=['deit', 'resnet50', 'dino', 'resnet50_dino', 'deit_small'])
    parser.add_argument('--aggregator', default='average', choices=['average', 'max', 'log_sum_exp', 'lp_pool', 'self_attn'])
    parser.add_argument('--scale-score', action='store_true', help='scale similarity scores')
-   parser.add_argument('--softmax', action='store_true', help='whether to apply or not softmax')
    
    # Deployment params
    parser.add_argument('--aug_prob', default=0.9, type=float, help='Probability of applying data augmentation during meta-testing')

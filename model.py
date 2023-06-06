@@ -5,15 +5,11 @@ from typing import Optional
 from utils import get_backbone, get_aggregator, apply_aggregator, get_output_dim
 
 class ProtoNet(nn.Module):
-    def __init__(self, scale=False):
+    def __init__(self, args):
         super().__init__()
+    
+        self.temp = torch.tensor(args.temperature)
 
-        self.scale = scale
-
-        if scale:
-            self.bias = nn.Parameter(torch.FloatTensor(1).fill_(0), requires_grad=True)
-            self.scale_cls = nn.Parameter(torch.FloatTensor(1).fill_(10), requires_grad=True)
-        
     def forward(self, support, query, mode="cos_sim"):
         support = F.normalize(support, p=2, dim=support.dim()-1, eps=1e-12)
         query = F.normalize(query, p=2, dim=query.dim()-1, eps=1e-12)
@@ -21,8 +17,7 @@ class ProtoNet(nn.Module):
         if mode == "cos_sim":
             score = query @ support.transpose(1, 2)
 
-        if self.scale:
-            score = self.scale_cls * (score + self.bias)
+        score = score / self.temp
             
         return score
         
@@ -39,7 +34,7 @@ class DeiTForFewShot(nn.Module):
         
         self.aggregator = get_aggregator(self.aggregator_name, get_output_dim(self.backbone_name, args.nClsEpisode, args.nSupport))
         # Classifier 
-        self.classifier = ProtoNet(scale=args.scale_score)
+        self.classifier = ProtoNet(args)
         
     def forward(
         self,

@@ -33,7 +33,7 @@ def generate_confusion_matrix(y_true, y_pred, label_names, path):
     
 def map_labels(class_to_label, label_to_class, labels):
     cls = [label_to_class[x.item()] for x in labels]
-    return [class_to_label[x[0].item()] for x in cls]
+    return [class_to_label[x[0]] for x in cls]
 
 def init_seed(seed=0, deterministic=False):
     """

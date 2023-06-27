@@ -133,17 +133,23 @@ def apply_aggregator(aggregator, aggregator_name, support_features):
     return prototypes
         
 def get_optimizer(args, model):
+    lr_scheduler = None
+
+    # Define optimizer
     if args.optimizer == 'sgd':
         optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
-
-        if args.sched == 'cosine':
-            lr_scheduler, _ = create_scheduler(args, optimizer)
-        elif args.sched == 'step':
-            lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.decay_epochs, gamma=args.decay_rate)
 
     elif args.optimizer == 'adam':
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
+    # Define scheduler
+    if args.sched == 'cosine':
+        lr_scheduler, _ = create_scheduler(args, optimizer)
+
+    elif args.sched == 'step':
+        lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.decay_epochs, gamma=args.decay_rate)
+
+    elif args.sched == 'exponential':
         lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=args.decay_rate)
 
     return optimizer, lr_scheduler

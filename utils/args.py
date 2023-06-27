@@ -54,7 +54,7 @@ def get_args_parser():
    parser.add_argument('--optimizer', type=str, default='sgd', choices=['sgd', 'adam'])
 
    # Learning rate schedule parameters
-   parser.add_argument('--sched', default='step', type=str, choices=["cosine", "step"], metavar='SCHEDULER',
+   parser.add_argument('--sched', default='step', type=str, choices=["cosine", "step", "exponential", "None"], metavar='SCHEDULER',
                      help='LR scheduler (default: "step"')
    parser.add_argument('--lr', type=float, default=5e-5, metavar='LR',
                      help='learning rate (default: 5e-4)')

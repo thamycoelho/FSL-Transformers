@@ -176,3 +176,5 @@ wandb/
 logger/log.txt
 output/test/test/confusion_matrix.png
 output/test/test/log.txt
+Untitled1.ipynb
+output/test/FSL-Transformers/test_aggragator/log.txt

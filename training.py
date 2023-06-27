@@ -55,7 +55,7 @@ class Trainer:
                     state_dict = {
                         'model': self.model.state_dict(),
                         'optimizer': self.optimizer.state_dict(),
-                        'lr_scheduler': self.lr_scheduler.state_dict(),
+                        'lr_scheduler': self.lr_scheduler.state_dict() if self.lr_scheduler else None,
                         'epoch': epoch,
                         'max_acc': max_accuracy,
                         'args': args,

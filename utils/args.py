@@ -36,7 +36,7 @@ def get_args_parser():
 
    # Model params
    parser.add_argument('--pretrained_weights', default='', type=str, help="Path to pretrained weights to evaluate.")
-   parser.add_argument('--backbone', default='deit',choices=['deit', 'resnet50', 'dino', 'resnet50_dino', 'deit_small'])
+   parser.add_argument('--backbone', default='deit',choices=['deit', 'resnet50', 'dino', 'resnet50_dino', 'deit_small', 'resnet18'])
    parser.add_argument('--aggregator', default='average', choices=['average', 'max', 'log_sum_exp', 'lp_pool', 'self_attn'])
    parser.add_argument('--temperature', default=0.1, type=float, help='temperature to be applyed to cosine similarities')
    

@@ -1,5 +1,5 @@
 from transformers import DeiTModel, ViTModel, ResNetModel, AutoImageProcessor
-from torchvision.models.resnet import resnet50
+from torchvision.models.resnet import resnet50, resnet18
 import torch
 import torch.nn as nn
 from timm.scheduler import create_scheduler
@@ -86,6 +86,9 @@ def get_backbone(backbone):
                 map_location="cpu",
             )
         backbone.load_state_dict(state_dict, strict=False)
+        
+    elif backbone == "resnet18":
+        backbone = resnet18(weights='ResNet18_Weights.DEFAULT')
 
     else:
         raise ValueError(f'{backbone} is not an backbone option.')

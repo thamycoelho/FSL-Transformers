@@ -77,12 +77,13 @@ def get_loaders(args):
         generator.manual_seed(args.seed + 10000 + j)
 
         data_loader = DataLoader(
-            dataset_val, sampler=sampler_val,
+            dataset_val, 
+            sampler=sampler_val if args.seed > -1 else None,
             batch_size=1,
             num_workers=3, # more workers can take too much CPU
             pin_memory=args.pin_mem,
             drop_last=False,
-            generator=generator
+            generator=generator if args.seed > -1 else None
         )
         data_loader_val[source] = data_loader
 
@@ -100,12 +101,13 @@ def get_loaders(args):
     generator.manual_seed(args.seed)
 
     data_loader_train = DataLoader(
-        dataset_train, sampler=sampler_train,
+        dataset_train, 
+        sampler=sampler_train if args.seed > -1 else None,
         batch_size=args.batch_size,
         num_workers=args.num_workers,
         pin_memory=args.pin_mem,
         drop_last=True,
-        generator=generator
+        generator= generator if args.seed > -1 else None
     )
 
     return data_loader_train, data_loader_val, global_labels_val

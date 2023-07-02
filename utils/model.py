@@ -52,7 +52,7 @@ class SelfAttnPool(nn.Module):
         return o
     
 def get_output_dim(backbone, n_way, n_shot):
-    if backbone in ['resnet50', 'resnet50_dino']:
+    if backbone in ['resnet50', 'resnet50_dino', 'resnet18']:
         feat_dim = 1000
     elif backbone in ['dino', 'deit_small']:
         feat_dim = 384

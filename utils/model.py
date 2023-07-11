@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 from timm.scheduler import create_scheduler
 
+import vision_transformer_attn as vit
+
 class SelfAttnPool(nn.Module):
     def __init__(self, feature_dim, units=None, do_the_sum=True, **kwargs):
         """
@@ -89,6 +91,17 @@ def get_backbone(backbone):
         
     elif backbone == "resnet18":
         backbone = resnet18(weights='ResNet18_Weights.DEFAULT')
+    
+    elif backbone == "vit_mini": # ViT pre-trained on miniImageNet
+        backbone = vit.vit_small()
+        checkpoint_file = 'mini_imagenet/checkpoint_mini.pth'
+
+        state_dict = torch.load(checkpoint_file, map_location="cpu")['student']
+        # remove `module.` prefix
+        state_dict = {k.replace("module.", ""): v for k, v in state_dict.items()}
+        # remove `backbone.` prefix induced by multicrop wrapper
+        state_dict = {k.replace("backbone.", ""): v for k, v in state_dict.items()}
+        backbone.load_state_dict(state_dict, strict=False)
 
     else:
         raise ValueError(f'{backbone} is not an backbone option.')

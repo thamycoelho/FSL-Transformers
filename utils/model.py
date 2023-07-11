@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from timm.scheduler import create_scheduler
 
-import vision_transformer_attn as vit
+from .vision_transformer_attn import vit_small
 
 class SelfAttnPool(nn.Module):
     def __init__(self, feature_dim, units=None, do_the_sum=True, **kwargs):
@@ -56,7 +56,7 @@ class SelfAttnPool(nn.Module):
 def get_output_dim(backbone, n_way, n_shot):
     if backbone in ['resnet50', 'resnet50_dino', 'resnet18']:
         feat_dim = 1000
-    elif backbone in ['dino', 'deit_small']:
+    elif backbone in ['dino', 'deit_small', 'vit_mini']:
         feat_dim = 384
     elif backbone == 'deit':
         feat_dim = 768
@@ -93,8 +93,8 @@ def get_backbone(backbone):
         backbone = resnet18(weights='ResNet18_Weights.DEFAULT')
     
     elif backbone == "vit_mini": # ViT pre-trained on miniImageNet
-        backbone = vit.vit_small()
-        checkpoint_file = 'mini_imagenet/checkpoint_mini.pth'
+        backbone = vit_small(patch_size=16)
+        checkpoint_file = 'utils/mini_imagenet/checkpoint1250.pth'
 
         state_dict = torch.load(checkpoint_file, map_location="cpu")['student']
         # remove `module.` prefix

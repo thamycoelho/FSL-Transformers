@@ -109,3 +109,61 @@ class EpisodeDataset(data.Dataset):
                self.tensorQuery[permQuery],
                self.labelQuery[permQuery],
                LabeltoClass)
+
+class InferenceDataset(data.Dataset):
+    """
+
+    :param string imgDir: image directory, each category is in a sub file;
+    :param transform: image transformation/data augmentation;
+    :param int inputW: input image size, dimension W;
+    :param int inputH: input image size, dimension H;
+    """
+    def __init__(self, dataset_dict, transform, inputW, inputH):
+        super().__init__()
+        
+        self.loaded_dict = dataset_dict
+        self.clsList = list(self.loaded_dict.keys())
+            
+        self.transform = transform
+
+        floatType = torch.FloatTensor
+
+        self.imgTensor = floatType(3, inputW, inputH)
+        self.mapCls = {}
+        self.labelToClass = {}
+        
+        self.len = 0
+        for i, cls in enumerate(self.clsList):
+            self.mapCls[cls] = i
+            self.labelToClass[i] = cls
+            self.len += len(self.loaded_dict[cls])
+
+        
+    def __len__(self):
+        return self.len
+
+    def __getitem__(self, idx):
+        """
+        Return a sample
+
+        :return dict: {'Image': 1 x nSupport x 3 x H x W,
+                       'Label': 1 x nSupport,
+                       'LabeltoClass': dict mapping class label with class name}
+        """
+        # select nCls from clsList
+        
+        cur_idx = idx
+        for cls in self.clsList:
+            if len(self.loaded_dict[cls]) > cur_idx: 
+                img_path = self.loaded_dict[cls][cur_idx]
+                label = self.mapCls[cls]
+                break
+
+            cur_idx -= len(self.loaded_dict[cls])
+
+        I = PilLoaderRGB(img_path)
+        img = self.imgTensor.copy_(self.transform(I))
+
+        return (img,
+               label,
+               self.labelToClass)

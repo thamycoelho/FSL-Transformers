@@ -5,7 +5,7 @@ import numpy as np
 from functools import partial
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 
-from .episodic_dataset import EpisodeDataset
+from .episodic_dataset import EpisodeDataset, InferenceDataset
 
 
 def get_sets(args):
@@ -20,43 +20,63 @@ def get_sets(args):
 
     # If not meta_dataset
     trainTransform, valTransform, inputW, inputH, \
-    trainDir, valDir, testDir, episodeJson, nbCls = \
+    trainDir, valDir, testDir, _, _ = \
             dataset_setting(args.nSupport, args.img_size)
     
-    trainSet = EpisodeDataset(imgDir = trainDir,
-                              nCls = args.nClsEpisode,
-                              nSupport = args.nSupport,
-                              nQuery = args.nQuery,
-                              transform = trainTransform,
-                              inputW = inputW,
-                              inputH = inputH,
-                              nEpisode = args.nEpisode)
-    
-    valSet = EpisodeDataset(imgDir = valDir,
-                     nCls = args.nClsEpisode,
-                     nSupport = args.nSupport,
-                     nQuery = args.nQuery,
-                     transform = valTransform,
-                     inputW = inputW,
-                     inputH = inputH,
-                     nEpisode = args.nEpisode)
+    trainSet = valSet = testSet = None
 
-    testSet = EpisodeDataset(imgDir = testDir,
-                             nCls = args.nClsEpisode,
-                             nSupport = args.nSupport,
-                             nQuery = args.nQuery,
-                             transform = valTransform,
-                             inputW = inputW,
-                             inputH = inputH,
-                             nEpisode = args.nEpisode)
+    if trainDir:
+        trainSet = EpisodeDataset(imgDir = trainDir,
+                                nCls = args.nClsEpisode,
+                                nSupport = args.nSupport,
+                                nQuery = args.nQuery,
+                                transform = trainTransform,
+                                inputW = inputW,
+                                inputH = inputH,
+                                nEpisode = args.nEpisode)
+
+    if valDir:
+        valSet = EpisodeDataset(imgDir = valDir,
+                        nCls = args.nClsEpisode,
+                        nSupport = args.nSupport,
+                        nQuery = args.nQuery,
+                        transform = valTransform,
+                        inputW = inputW,
+                        inputH = inputH,
+                        nEpisode = args.nEpisode)
+
+    if testDir:
+        testSet = EpisodeDataset(imgDir = testDir,
+                                nCls = args.nClsEpisode,
+                                nSupport = args.nSupport,
+                                nQuery = args.nQuery,
+                                transform = valTransform,
+                                inputW = inputW,
+                                inputH = inputH,
+                                nEpisode = args.nEpisode)
     
     return trainSet, valSet, testSet
 
+def get_inference_set(args):
+    from .inference import dataset_setting
+
+     # If not meta_dataset
+    transform, inputW, inputH, testDict = \
+        dataset_setting(args.dataset_path, args.img_size)
+    
+    testSet = InferenceDataset(dataset_dict=testDict, 
+                               transform=transform, 
+                               inputW=inputW, 
+                               inputH=inputH)
+
+    return testSet
 
 def get_loaders(args):
     print("get datasets")
     # datasets
-    if args.eval:
+    if args.dataset == 'inference':
+        dataset_vals = get_inference_set(args)
+    elif args.eval:
         _, _, dataset_vals = get_sets(args)
     else:
         dataset_train, dataset_vals, _ = get_sets(args)
@@ -79,8 +99,8 @@ def get_loaders(args):
         data_loader = DataLoader(
             dataset_val, 
             sampler=sampler_val if args.seed > -1 else None,
-            batch_size=1,
-            num_workers=3, # more workers can take too much CPU
+            batch_size=args.batch_size,
+            num_workers=1, # more workers can take too much CPU
             pin_memory=args.pin_mem,
             drop_last=False,
             generator=generator if args.seed > -1 else None

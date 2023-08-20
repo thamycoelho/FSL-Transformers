@@ -13,6 +13,16 @@ def get_args_parser():
    parser.add_argument('--deterministic', default=False, type=bool)
    parser.add_argument('--experiment_name', default="", help='name of the experiment running to create apropriate file.')
    
+   # Extract features parameters
+   parser.add_argument("--extract_features", action='store_true')
+   parser.add_argument("--dataset_path", default="", type=str)
+
+   # Classify parameters
+   parser.add_argument("--classify", action="store_true")
+   parser.add_argument("--support_file", type=str)
+   parser.add_argument("--query_file", type=str)
+
+
    # Wandb parameters 
    parser.add_argument("--wandb", dest='wandb', action='store_true')
    parser.add_argument("--no-wandb", dest='wandb', action='store_false')
@@ -20,7 +30,7 @@ def get_args_parser():
    parser.add_argument("--project-name", default="FSL-Transformers", type=str)
 
    # Dataset parameters
-   parser.add_argument("--dataset", choices=["places", "places_600", "test"],
+   parser.add_argument("--dataset", choices=["places", "places_600", "test", "csam", "litmus"],
                      default="places_600",
                      help="Which few-shot dataset.")
 
@@ -36,7 +46,7 @@ def get_args_parser():
 
    # Model params
    parser.add_argument('--pretrained_weights', default='', type=str, help="Path to pretrained weights to evaluate.")
-   parser.add_argument('--backbone', default='deit',choices=['deit', 'resnet50', 'dino', 'resnet50_dino', 'deit_small', 'resnet18', 'vit_mini'])
+   parser.add_argument('--backbone', default='deit_small',choices=['deit', 'resnet50', 'dino', 'resnet50_dino', 'deit_small', 'resnet18', 'vit_mini'])
    parser.add_argument('--aggregator', default='average', choices=['average', 'max', 'log_sum_exp', 'lp_pool', 'self_attn'])
    parser.add_argument('--temperature', default=0.1, type=float, help='temperature to be applyed to cosine similarities')
    

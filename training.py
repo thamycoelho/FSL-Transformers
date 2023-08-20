@@ -4,10 +4,12 @@ import wandb
 
 from timm.utils import accuracy
 
-from utils import map_labels, generate_confusion_matrix
+from utils import map_labels, generate_confusion_matrix, get_aggregator
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.nn.functional as nn
+import pandas as pd
 import utils.logger as logger
+from model import generate_prototype
 
 class Trainer:
     def __init__(self, 
@@ -207,4 +209,106 @@ class Trainer:
         return return_dict
         
         
+    @torch.no_grad()
+    def extract_features(self, args):
+        data_loader = self.data_loader_val 
+
+        features_by_class = {}
+        for ii, batch in enumerate(data_loader):
+            x, y, img_file, label_to_class = batch
+
+            x = x.to(self.device)
+
+            with torch.cuda.amp.autocast():
+                features = self.model.get_features(batch=x)
+            
+            for feat_idx in range(features.shape[0]):
+                label = y[feat_idx]
+
+                cls = label_to_class[label.item()][0]
+
+                if not cls in features_by_class:
+                    features_by_class[cls] = []
+
+                features_by_class[cls].append((features[feat_idx], img_file[feat_idx]))
+
+
+        return features_by_class
+    
+    def classify_from_features(self, args):
         
+        # Logger 
+        metric_logger = logger.MetricLogger(delimiter="  ")
+        metric_logger.add_meter('acc', logger.SmoothedValue(window_size=len(self.data_loader_train.dataset)))
+        header = 'Classify:'
+
+        support = self.data_loader_train
+        query = self.data_loader_val
+        gloal_label_id = self.global_labels_val 
+        
+        y_pred = []
+        y_target = []
+
+        df = pd.DataFrame()
+
+        self.model.eval()
+
+        for episode, support_batch in enumerate(support):
+            print(f'Episode {episode}:')
+            SupportTensor, SupportLabel, _, sup_label_to_class = support_batch
+            SupportTensor = SupportTensor.to(self.device)
+            SupportLabel = SupportLabel.to(self.device)
+
+            SupportTensor = torch.squeeze(SupportTensor)
+            all_acc = []
+            label = []
+            predicted = []
+            files = []
+            correct = 0
+            
+            for n, query_batch in enumerate(query):
+                QueryTensor, QueryLabel, img_file, query_label_to_class = query_batch
+                QueryTensor = QueryTensor.to(self.device)
+                QueryLabel = QueryLabel.to(self.device)
+
+                if episode == 0 and n ==0:
+                    print(sup_label_to_class)
+                    print(query_label_to_class)
+
+                aggregator = get_aggregator(args.aggregator, QueryTensor)
+                prototype = generate_prototype(SupportLabel, SupportLabel.max()+1, SupportTensor, aggregator, args.aggregator)
+                logits = self.model(prototype, QueryTensor)
+
+                logits = torch.squeeze(logits)
+                QueryLabel = QueryLabel.view(-1)
+                pred = torch.argmax(logits, dim=-1)
+
+                # Calculate accuracy                
+                correct += (pred == QueryLabel).sum()
+
+                # Map classified labels to global labels
+                QueryLabel = map_labels(gloal_label_id,sup_label_to_class, QueryLabel)
+                pred = map_labels(gloal_label_id,sup_label_to_class, pred)
+                
+                # Append results 
+                label.extend([sup_label_to_class[x][0] for x in QueryLabel])
+                predicted.extend([sup_label_to_class[x][0] for x in pred])
+                files.extend([x for x in img_file])
+
+                y_pred.extend(pred)
+                y_target.extend(QueryLabel)
+                
+
+            if episode == 0:
+                df['Image File'] = files
+                df['Label'] = label
+            df['Epipsode {}'.format(episode)] = predicted
+            acc = (correct.item() / len(predicted)) * 100
+            print("Accuracy:", acc)
+
+            metric_logger.meters['acc'].update(acc)
+
+        print('* Acc@1 {top.global_avg:.3f} ± {top.mean_confidence_interval: .4f}'
+        .format(top=metric_logger.acc))
+
+        return df

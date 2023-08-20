@@ -83,3 +83,26 @@ class DeiTForFewShot(nn.Module):
         logits = self.classifier(support=prototypes, query=query_features)
         
         return logits
+    
+    def get_features(self, batch):
+        B, C, H, W = batch.shape
+
+        batch = batch.view(-1, C, H, W)
+
+        # Get support features
+        features = self.backbone(
+            batch,
+        )
+
+        if self.backbone_name in ['deit', 'dino', 'deit_small']:
+            features = features[0][:,0,:]
+
+        return features
+    
+def generate_prototype(support_labels, n_way, support, aggregator, aggregator_name):
+    # Get prototypes (avg pooling)
+    sorted_support_labels = torch.sort(support_labels)
+    support_features = F.embedding(sorted_support_labels.indices.view(n_way, torch.div(support.shape[0], n_way, rounding_mode='trunc')), support.squeeze())
+    prototypes = apply_aggregator(aggregator, aggregator_name, support_features)
+
+    return prototypes

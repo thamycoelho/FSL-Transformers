@@ -30,7 +30,7 @@ def get_args_parser():
    parser.add_argument("--project-name", default="FSL-Transformers", type=str)
 
    # Dataset parameters
-   parser.add_argument("--dataset", choices=["places", "places_600", "test", "csam", "litmus"],
+   parser.add_argument("--dataset", choices=["places", "places_600", "test", "final_test", "csam", "litmus"],
                      default="places_600",
                      help="Which few-shot dataset.")
 

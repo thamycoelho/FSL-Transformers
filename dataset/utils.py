@@ -15,6 +15,9 @@ def get_sets(args):
         from .places600 import dataset_setting
     elif args.dataset == 'test':
         from .test import dataset_setting
+    elif args.dataset == "final_test":
+        from .places600_final import dataset_setting
+
     else:
         raise ValueError(f'{args.dataset} is not supported.')
 

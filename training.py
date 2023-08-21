@@ -255,25 +255,22 @@ class Trainer:
 
         for episode, support_batch in enumerate(support):
             print(f'Episode {episode}:')
-            SupportTensor, SupportLabel, _, sup_label_to_class = support_batch
+            SupportTensor, SupportLabel, sup_image_file, sup_label_to_class = support_batch
             SupportTensor = SupportTensor.to(self.device)
             SupportLabel = SupportLabel.to(self.device)
 
             SupportTensor = torch.squeeze(SupportTensor)
-            all_acc = []
             label = []
             predicted = []
             files = []
             correct = 0
-            
+
+            sup_image_file = [x[0] for x in sup_image_file]
+
             for n, query_batch in enumerate(query):
                 QueryTensor, QueryLabel, img_file, query_label_to_class = query_batch
                 QueryTensor = QueryTensor.to(self.device)
                 QueryLabel = QueryLabel.to(self.device)
-
-                if episode == 0 and n ==0:
-                    print(sup_label_to_class)
-                    print(query_label_to_class)
 
                 aggregator = get_aggregator(args.aggregator, QueryTensor)
                 prototype = generate_prototype(SupportLabel, SupportLabel.max()+1, SupportTensor, aggregator, args.aggregator)
@@ -292,7 +289,7 @@ class Trainer:
                 
                 # Append results 
                 label.extend([sup_label_to_class[x][0] for x in QueryLabel])
-                predicted.extend([sup_label_to_class[x][0] for x in pred])
+                predicted.extend([sup_label_to_class[x][0] if img_file[i] not in sup_image_file else None for i, x in enumerate(pred)])
                 files.extend([x for x in img_file])
 
                 y_pred.extend(pred)

@@ -13,7 +13,7 @@ from model import DeiTForFewShot
 def main(args):
     print(args.dataset)
     # Deal with output dir
-    output_dir = Path(args.output_dir + "/" + args.dataset + "/" + args.project_name + "/" + args.experiment_name)
+    output_dir = Path(args.output_dir + "/" + args.experiment_name)
     output_dir.mkdir(parents=True, exist_ok=True)
     with (output_dir / "log.txt").open("a") as f:
             f.write(" ".join(sys.argv) + "\n")
@@ -58,8 +58,9 @@ def main(args):
     features = trainer.extract_features(args)
 
     # Generate Pickle   
+    torch.save(features, output_dir / 'features.pth')
     print(output_dir)
-    torch.save(features, output_dir / 'features.pth')    
+
     # if args.output_dir:
     #     with (output_dir / 'features.pkl').open("wb") as f:
     #         pickle.dump(features, f)

@@ -2,17 +2,12 @@
 Code essentially copy-paste from the pmf repository:  https://github.com/hushell/pmf_cvpr22/blob/4d7502fe0ea4ffdc4ee9c7d7407a3f6c19b1f208/datasets/episodic_dataset.py
 """
 
-import os
 import torch
 import torch.utils.data as data
 import PIL.Image as Image
 import numpy as np
-import json
 import pickle
 from pathlib import Path
-
-from torchvision import transforms
-from torchvision.datasets import ImageFolder
 
 
 def PilLoaderRGB(imgPath) :
@@ -124,7 +119,7 @@ class InferenceDataset(data.Dataset):
         super().__init__()
         
         self.loaded_dict = dataset_dict
-        self.clsList = list(self.loaded_dict.keys())
+        self.clsList = sorted(list(self.loaded_dict.keys()))
             
         self.transform = transform
 
@@ -164,11 +159,11 @@ class InferenceDataset(data.Dataset):
                 break
 
             cur_idx -= len(self.loaded_dict[cls])
-
+        
         if isinstance(img, str) or isinstance(img, Path):
             img_file = str(img)
-            I = PilLoaderRGB(img)
-            img = self.imgTensor.copy_(self.transform(I))
+            I = PilLoaderRGB(img_file)
+            img = self.transform(I)
         
         if isinstance(img, tuple):
             img_file = img[1]
@@ -194,8 +189,7 @@ class SupportDataset(data.Dataset):
 
         self.loaded_dict = dataset_dict
         
-        
-        self.clsList = list(self.loaded_dict.keys())
+        self.clsList = sorted(list(self.loaded_dict.keys()))
             
         self.nCls = nCls
         self.nSupport = nSupport
@@ -248,7 +242,7 @@ class SupportDataset(data.Dataset):
                 img = imgCls[j]
                 self.tensorSupport[i * self.nSupport + j] = img[0]
                 self.img_files[i * self.nSupport + j] = img[1]
-
+    
         ## Random permutation. Though this is not necessary in our approach
         permSupport = torch.randperm(self.nCls * self.nSupport)
 

@@ -87,8 +87,8 @@ def get_classifier_set(args):
                                inputH=1)
 
     supportSet = SupportDataset(dataset_dict=support,
-                                nCls = args.nClsEpisode,
-                                nSupport = args.nSupport,
+                                nCls = len(support.keys()),
+                                nSupport =  args.nSupport,
                                 transform = None,
                                 nEpisode = args.nEpisode)
 
@@ -110,33 +110,24 @@ def get_loaders(args):
 
     if args.classify:
         global_labels_val = dataset_train.mapCls
-    # Val loader
-    print("prepare val dataset")
-    if not isinstance(dataset_vals, dict):
-        dataset_vals = {'single': dataset_vals}
         
-    data_loader_val = {}
+    # Val loader
+    print("prepare val dataset") 
     
-    for j, (source, dataset_val) in enumerate(dataset_vals.items()):
-        sampler_val = SequentialSampler(dataset_val)
+    sampler_val = SequentialSampler(dataset_vals)
 
-        generator = torch.Generator()
-        generator.manual_seed(args.seed + 10000 + j)
+    generator = torch.Generator()
+    generator.manual_seed(args.seed)
 
-        data_loader = DataLoader(
-            dataset_val, 
-            sampler=sampler_val if args.seed > -1 else None,
-            batch_size=args.batch_size,
-            num_workers=1, # more workers can take too much CPU
-            pin_memory=args.pin_mem,
-            drop_last=False,
-            generator=generator if args.seed > -1 else None
-        )
-        data_loader_val[source] = data_loader
-
-
-    if 'single' in dataset_vals:
-        data_loader_val = data_loader_val['single']
+    data_loader_val = DataLoader(
+        dataset_vals, 
+        sampler=sampler_val if args.seed > -1 else None,
+        batch_size=args.batch_size,
+        num_workers=1, # more workers can take too much CPU
+        pin_memory=args.pin_mem,
+        drop_last=False,
+        generator=generator if args.seed > -1 else None
+    )
 
     if args.eval or args.extract_features:
         return None, data_loader_val, global_labels_val

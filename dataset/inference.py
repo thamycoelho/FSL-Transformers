@@ -38,17 +38,24 @@ def dataset_setting(dataset_path, img_size=32):
 
         dataset_dict = {}
         for cls in classes:
-            dataset_dict[cls] = list(map(lambda x: dataset_path / cls / x, listdir(dataset_path / cls)))
+            for n in listdir(dataset_path / cls):
+                if cls not in dataset_dict:
+                    dataset_dict[cls] = []
+                dataset_dict[cls].extend(list(map(lambda x: dataset_path / cls / n / x, listdir(dataset_path / cls / n))))
 
-  
     return valTransform, inputW, inputH, dataset_dict
 
 def transform_dataset(csv_path):
     dataset_dict = {}
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(csv_path, header=None, names=['filename', 'label'])
     classes = df['label'].unique()
+    classes = list(map(lambda x: x.lower(), classes))
+    support_classes = ['0-bathroom', '1-bedroom', '2-child_room', '3-classroom', '4-dressing_room', '5-living_room', '6-studio', '7-swimming_pool']
     for cls in classes:
-        images = df.loc[df['label'] == cls]['filename'].tolist()
-        dataset_dict[cls]= images
+        if cls.lower() in support_classes:
+            images = df.loc[df['label'] == cls]['filename'].tolist()
+            if not cls.lower() in dataset_dict:
+                dataset_dict[cls] = []
+            dataset_dict[cls].extend(images)
 
     return dataset_dict

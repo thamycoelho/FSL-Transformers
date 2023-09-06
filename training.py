@@ -1,6 +1,5 @@
 import torch
 import json
-import wandb
 
 from timm.utils import accuracy
 
@@ -49,8 +48,7 @@ class Trainer:
             log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
                      **{f'test_{k}': v for k, v in evaluation_stats.items()},
                      'epoch': epoch}
-            if args.wandb:
-                wandb.log(log_stats)
+
             if self.output_dir:
                 checkpoint_paths = [self.output_dir / 'checkpoint.pth', self.output_dir / 'best.pth']
                 for checkpoint_path in checkpoint_paths:
@@ -143,15 +141,20 @@ class Trainer:
         y_pred = []
         y_target = []
 
+        df = pd.DataFrame(columns=['Image File', 'Label'])
         self.model.eval()
         
         for ii, batch in enumerate(metric_logger.log_every(data_loader, 10, header)):
-            SupportTensor, SupportLabel, x, y, label_to_class = batch
+            SupportTensor, SupportLabel, x, y, support_files, query_files, label_to_class = batch
             SupportTensor = SupportTensor.to(self.device)
             SupportLabel = SupportLabel.to(self.device)
             x = x.to(self.device)
             y = y.to(self.device)
 
+            label = []
+            predicted = []
+            files = []
+            df_episode = pd.DataFrame()
             with torch.cuda.amp.autocast():
                 logits = self.model(query=x, support=SupportTensor, support_labels=SupportLabel)
                 
@@ -165,11 +168,12 @@ class Trainer:
             
             # Loss 
             loss = self.loss_function(logits, y)
-            
-            # Map classified labels to global labels
-            y = map_labels(gloal_label_id,label_to_class, y)
-            pred = map_labels(gloal_label_id,label_to_class, pred)
-            
+        
+            # Append results 
+            label.extend([label_to_class[x.item()][0] for x in y])
+            predicted.extend([label_to_class[x.item()][0] if query_files[i] not in support_files else None for i, x in enumerate(pred)])
+            files.extend([x[0] for x in query_files])
+
             # Append results 
             y_pred.extend(pred)
             y_target.extend(y)
@@ -180,13 +184,15 @@ class Trainer:
             metric_logger.meters['acc'].update(acc.item(), n=batch_size)
             metric_logger.update(n_ways=SupportLabel.max()+1)
             metric_logger.update(n_imgs=SupportTensor.shape[1] + x.shape[1])
-        
+
+            df_episode['Image File'] = files
+            df_episode['Label'] = label
+            df_episode['Epipsode {}'.format(ii)] = predicted
+            
+            df = pd.merge(df, df_episode, how='outer', on=['Image File', 'Label'])
         metric_logger.synchronize_between_processes()
         print('* Acc@1 {top.global_avg:.3f} ± {top.mean_confidence_interval: .4f} loss {losses.global_avg:.3f}'
             .format(top=metric_logger.acc, losses=metric_logger.loss))            
-
-        if eval and self.output_dir:
-            generate_confusion_matrix(y_target, y_pred, list(gloal_label_id.keys()), self.output_dir)
 
         return_dict = {}
         return_dict['acc'] = metric_logger.meters['acc'].avg
@@ -195,16 +201,8 @@ class Trainer:
         if self.output_dir:
             with (self.output_dir / "log.txt").open("a") as f:
                 f.write(json.dumps(return_dict) + "\n")
-        
-        # wandb log
-        if eval and record_wandb:
-            columns = ["experiment name", "finetuning", "accuracy", "confidence interval", "confision_matrix"]
 
-            data = [[self.experiment_name, resume, return_dict['acc'], 
-                    return_dict['confidence_interval'], 
-                    wandb.Image(str(self.output_dir / 'confusion_matrix.png'))]]
-            table = wandb.Table(columns=columns, data=data)
-            wandb.log({"Testing dataset": table})
+            df.to_csv(self.output_dir / 'experiment.csv', index=False, sep=',')
 
         return return_dict
         

@@ -30,12 +30,8 @@ class EpisodeDataset(data.Dataset):
     def __init__(self, imgDir, nCls, nSupport, nQuery, transform, inputW, inputH, nEpisode=2000):
         super().__init__()
 
-        self.imgDir = imgDir
-        
-        with open(self.imgDir, 'rb') as f:
-            self.loaded_dict = pickle.load(f)
-        
-        self.clsList = list(self.loaded_dict.keys())
+        self.loaded_dict = imgDir
+        self.clsList = sorted(list(self.loaded_dict.keys()))
             
         self.nCls = nCls
         self.nSupport = nSupport
@@ -51,6 +47,8 @@ class EpisodeDataset(data.Dataset):
         self.tensorQuery = floatType(nCls * nQuery, 3, inputW, inputH)
         self.labelQuery = intType(nCls * nQuery)
         self.imgTensor = floatType(3, inputW, inputH)
+        self.support_img_files = np.empty(nCls * nSupport, dtype='object')
+        self.query_img_files = np.empty(nCls * nQuery, dtype='object')
         self.mapCls = {}
 
         # labels {0, ..., nCls-1}
@@ -89,22 +87,29 @@ class EpisodeDataset(data.Dataset):
             
             for j in range(self.nSupport) :
                 img = imgCls[j]
+                self.support_img_files[i * self.nSupport + j] = str(img)
                 I = PilLoaderRGB(img)
-                self.tensorSupport[i * self.nSupport + j] = self.imgTensor.copy_(self.transform(I))
+                self.tensorSupport[i * self.nSupport + j] = self.transform(I)
 
             for j in range(self.nQuery) :
                 img = imgCls[j + self.nSupport]
+                self.query_img_files[i * self.nQuery + j] = str(img)
                 I = PilLoaderRGB(img)
-                self.tensorQuery[i * self.nQuery + j] = self.imgTensor.copy_(self.transform(I))
+                self.tensorQuery[i * self.nQuery + j] = self.transform(I)
 
         ## Random permutation. Though this is not necessary in our approach
         permSupport = torch.randperm(self.nCls * self.nSupport)
         permQuery = torch.randperm(self.nCls * self.nQuery)
 
+        img_file_support = list(self.support_img_files[permSupport])
+        img_file_query = list(self.query_img_files[permQuery])
+        
         return (self.tensorSupport[permSupport],
                self.labelSupport[permSupport],
                self.tensorQuery[permQuery],
                self.labelQuery[permQuery],
+               img_file_support,
+               img_file_query,
                LabeltoClass)
 
 class InferenceDataset(data.Dataset):

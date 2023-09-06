@@ -17,47 +17,28 @@ def get_sets(args):
         from .test import dataset_setting
     elif args.dataset == "final_test":
         from .places600_final import dataset_setting
+    elif args.dataset == 'csam':
+        from .inference import dataset_setting
 
     else:
         raise ValueError(f'{args.dataset} is not supported.')
 
     # If not meta_dataset
-    trainTransform, valTransform, inputW, inputH, \
-    trainDir, valDir, testDir, _, _ = \
-            dataset_setting(args.nSupport, args.img_size)
+     # If not meta_dataset
+    transform, inputW, inputH, testDict = \
+        dataset_setting(args.dataset_path, args.img_size)
     
     trainSet = valSet = testSet = None
 
-    if trainDir:
-        trainSet = EpisodeDataset(imgDir = trainDir,
-                                nCls = args.nClsEpisode,
-                                nSupport = args.nSupport,
-                                nQuery = args.nQuery,
-                                transform = trainTransform,
-                                inputW = inputW,
-                                inputH = inputH,
-                                nEpisode = args.nEpisode)
+    testSet = EpisodeDataset(imgDir = testDict,
+                            nCls = len(testDict.keys()),
+                            nSupport = args.nSupport,
+                            nQuery = args.nQuery,
+                            transform = transform,
+                            inputW = inputW,
+                            inputH = inputH,
+                            nEpisode = args.nEpisode)
 
-    if valDir:
-        valSet = EpisodeDataset(imgDir = valDir,
-                        nCls = args.nClsEpisode,
-                        nSupport = args.nSupport,
-                        nQuery = args.nQuery,
-                        transform = valTransform,
-                        inputW = inputW,
-                        inputH = inputH,
-                        nEpisode = args.nEpisode)
-
-    if testDir:
-        testSet = EpisodeDataset(imgDir = testDir,
-                                nCls = args.nClsEpisode,
-                                nSupport = args.nSupport,
-                                nQuery = args.nQuery,
-                                transform = valTransform,
-                                inputW = inputW,
-                                inputH = inputH,
-                                nEpisode = args.nEpisode)
-    
     return trainSet, valSet, testSet
 
 def get_inference_set(args):

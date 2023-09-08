@@ -13,15 +13,11 @@ def get_args_parser():
    parser.add_argument('--deterministic', default=False, type=bool)
    parser.add_argument('--experiment_name', default="", help='name of the experiment running to create apropriate file.')
    
-   # Extract features parameters
-   parser.add_argument("--extract_features", action='store_true')
-   parser.add_argument("--dataset_path", default="", type=str)
-
    # Classify parameters
-   parser.add_argument("--classify", action="store_true")
    parser.add_argument("--support_file", type=str)
    parser.add_argument("--query_file", type=str)
-
+   parser.add_argument("--eval_fsl", action='store_true')
+   parser.add_argument("--eval_general", action='store_true')
 
    # Wandb parameters 
    parser.add_argument("--wandb", dest='wandb', action='store_true')
@@ -30,9 +26,12 @@ def get_args_parser():
    parser.add_argument("--project-name", default="FSL-Transformers", type=str)
 
    # Dataset parameters
-   parser.add_argument("--dataset", choices=["places", "places_600", "test", "final_test", "csam", "litmus"],
+   parser.add_argument("--dataset", choices=["places", "places_600", "test", "final_test", "csam", "litmus", "csam_indoor", "RCPD"],
                      default="places_600",
                      help="Which few-shot dataset.")
+   parser.add_argument("--dataset_path", default="", type=str)
+   parser.add_argument("--csv_file", default="", type=str)
+   parser.add_argument("--csv_sep", default=",", type=str)
 
    # Few-shot parameters 
    parser.add_argument("--nClsEpisode", default=8, type=int,

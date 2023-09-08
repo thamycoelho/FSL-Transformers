@@ -27,7 +27,7 @@ class EpisodeDataset(data.Dataset):
     :param int inputW: input image size, dimension W;
     :param int inputH: input image size, dimension H;
     """
-    def __init__(self, imgDir, nCls, nSupport, nQuery, transform, inputW, inputH, nEpisode=2000):
+    def __init__(self, imgDir, nCls, nSupport, nQuery, nEpisode=2000):
         super().__init__()
 
         self.loaded_dict = imgDir
@@ -36,17 +36,15 @@ class EpisodeDataset(data.Dataset):
         self.nCls = nCls
         self.nSupport = nSupport
         self.nQuery = nQuery
-        self.transform = transform
         self.nEpisode = nEpisode
 
         floatType = torch.FloatTensor
         intType = torch.LongTensor
 
-        self.tensorSupport = floatType(nCls * nSupport, 3, inputW, inputH)
+        self.tensorSupport = floatType(nCls * nSupport, 384)
         self.labelSupport = intType(nCls * nSupport)
-        self.tensorQuery = floatType(nCls * nQuery, 3, inputW, inputH)
+        self.tensorQuery = floatType(nCls * nQuery, 384)
         self.labelQuery = intType(nCls * nQuery)
-        self.imgTensor = floatType(3, inputW, inputH)
         self.support_img_files = np.empty(nCls * nSupport, dtype='object')
         self.query_img_files = np.empty(nCls * nQuery, dtype='object')
         self.mapCls = {}
@@ -73,9 +71,8 @@ class EpisodeDataset(data.Dataset):
                        'LabeltoClass': dict mapping class label with class name}
         """
         # select nCls from clsList
-        clsEpisode = np.random.choice(self.clsList, self.nCls, replace=False)
+        clsEpisode = self.clsList
         LabeltoClass = dict()
-        
         for i, cls in enumerate(clsEpisode):
             #dict LabeltoClass
             LabeltoClass[i] = cls
@@ -83,19 +80,18 @@ class EpisodeDataset(data.Dataset):
             imgList = self.loaded_dict[cls]
 
             # in total nQuery+nSupport images from each class
-            imgCls = np.random.choice(imgList, self.nQuery + self.nSupport, replace=False)
+            imgCls = np.random.choice(len(imgList), self.nQuery + self.nSupport, replace=False)
+            imgCls = [imgList[i] for i in imgCls]
             
             for j in range(self.nSupport) :
                 img = imgCls[j]
-                self.support_img_files[i * self.nSupport + j] = str(img)
-                I = PilLoaderRGB(img)
-                self.tensorSupport[i * self.nSupport + j] = self.transform(I)
+                self.support_img_files[i * self.nSupport + j] = img[1]
+                self.tensorSupport[i * self.nSupport + j] = img[0]
 
             for j in range(self.nQuery) :
                 img = imgCls[j + self.nSupport]
-                self.query_img_files[i * self.nQuery + j] = str(img)
-                I = PilLoaderRGB(img)
-                self.tensorQuery[i * self.nQuery + j] = self.transform(I)
+                self.query_img_files[i * self.nQuery + j] = img[1]
+                self.tensorQuery[i * self.nQuery + j] = img[0]
 
         ## Random permutation. Though this is not necessary in our approach
         permSupport = torch.randperm(self.nCls * self.nSupport)

@@ -233,8 +233,7 @@ class Trainer:
 
         return features_by_class
     
-    def classify_from_features(self, args):
-        
+    def classify_general_(self, args):
         # Logger 
         metric_logger = logger.MetricLogger(delimiter="  ")
         metric_logger.add_meter('acc', logger.SmoothedValue(window_size=len(self.data_loader_train.dataset)))
@@ -307,3 +306,72 @@ class Trainer:
         .format(top=metric_logger.acc))
 
         return df
+    
+    def classify_fsl_(self, args):
+        dataloader = self.data_loader_val
+        gloal_label_id = self.global_labels_val 
+        
+        # Logger 
+        metric_logger = logger.MetricLogger(delimiter="  ")
+        metric_logger.add_meter('acc', logger.SmoothedValue(window_size=len(dataloader.dataset)))
+        header = 'Classify:'
+
+        
+        y_pred = []
+        y_target = []
+
+        df = pd.DataFrame(columns=['Image File', 'Label'])
+
+        self.model.eval()
+
+        for episode, batch in enumerate(dataloader):
+            SupportTensor, SupportLabel, QueryTensor, QueryLabel, support_files, query_files, label_to_class = batch
+            SupportTensor = SupportTensor.to(self.device)
+            SupportLabel = SupportLabel.to(self.device)
+            QueryTensor = QueryTensor.to(self.device)
+            QueryLabel = QueryLabel.to(self.device)
+
+            SupportTensor = torch.squeeze(SupportTensor)
+
+            label = []
+            predicted = []
+            files = []
+            df_episode = pd.DataFrame()
+
+            aggregator = get_aggregator(args.aggregator, QueryTensor)
+            prototype = generate_prototype(SupportLabel, SupportLabel.max()+1, SupportTensor, aggregator, args.aggregator)
+            logits = self.model(prototype, QueryTensor)
+
+            logits = torch.squeeze(logits)
+            QueryLabel = QueryLabel.view(-1)
+            pred = torch.argmax(logits, dim=-1)
+
+            # Map classified labels to global labels
+            QueryLabel = map_labels(gloal_label_id, label_to_class, QueryLabel)
+            pred = map_labels(gloal_label_id, label_to_class, pred)
+            
+            # Append results 
+            label.extend([label_to_class[x][0] for x in QueryLabel])
+            predicted.extend([label_to_class[x][0] if query_files[i] not in support_files else None for i, x in enumerate(pred)])
+            files.extend([x[0] for x in query_files])
+
+            y_pred.extend(pred)
+            y_target.extend(QueryLabel)
+
+            df_episode['Image File'] = files
+            df_episode['Label'] = label
+            df_episode['Epipsode {}'.format(episode)] = predicted
+            
+            df = pd.merge(df, df_episode, how='outer', on=['Image File', 'Label'])
+        return df
+
+
+    def classify_from_features(self, args):
+        if args.eval_general:
+            df = self.classify_general_(args)
+        elif args.eval_fsl:
+            df = self.classify_fsl_(args)
+
+        return df
+        
+        

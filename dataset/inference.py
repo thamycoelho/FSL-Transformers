@@ -4,11 +4,10 @@ import os
 import pickle
 import pandas as pd
 
-from os import listdir
 from pathlib import Path
 
 
-def dataset_setting(dataset_path, img_size=32):
+def dataset_setting(dataset_path, csv_file=None, csv_sep=None, img_size=32, dataset_name=""):
     """
     Return dataset setting
 
@@ -25,36 +24,39 @@ def dataset_setting(dataset_path, img_size=32):
                                        normalize])
     inputW, inputH = img_size, img_size
 
-    if dataset_path.endswith('pkl'):
-         with open(dataset_path, 'rb') as f:
+    if csv_file:
+        dataset_dict = transform_dataset(csv_file, dataset_path, csv_sep, dataset_name=dataset_name)
+    
+    elif dataset_path.endswith('pkl'):
+        with open(dataset_path, 'rb') as f:
             dataset_dict = pickle.load(f)
-
-    elif dataset_path.endswith('csv'):
-        dataset_dict = transform_dataset(dataset_path)
 
     elif os.path.isdir(dataset_path):
         dataset_path = Path(dataset_path)
-        classes = sorted(listdir(dataset_path))
-
+        classes = sorted(os.listdir(dataset_path))
         dataset_dict = {}
         for cls in classes:
-            for n in listdir(dataset_path / cls):
+            if os.path.isdir((dataset_path / cls)):
+                img_files = filter(lambda item: item.is_file(), (dataset_path / cls).rglob("*")) 
                 if cls not in dataset_dict:
                     dataset_dict[cls] = []
-                dataset_dict[cls].extend(list(map(lambda x: dataset_path / cls / n / x, listdir(dataset_path / cls / n))))
+                dataset_dict[cls].extend(img_files)
 
     return valTransform, inputW, inputH, dataset_dict
 
-def transform_dataset(csv_path):
+def transform_dataset(csv_file, data_path, sep, dataset_name=None):
     dataset_dict = {}
-    df = pd.read_csv(csv_path, header=None, names=['filename', 'label'])
+    df = pd.read_csv(csv_file, header=None, names=['filename', 'label'], sep=sep)
     classes = df['label'].unique()
-    classes = list(map(lambda x: x.lower(), classes))
-    support_classes = ['0-bathroom', '1-bedroom', '2-child_room', '3-classroom', '4-dressing_room', '5-living_room', '6-studio', '7-swimming_pool']
+    support_classes = classes = list(map(lambda x: x.lower(), classes))
+    if dataset_name == "csam_indoor":
+        support_classes = ['0-bathroom', '1-bedroom', '2-child_room', '3-classroom', '4-dressing_room', '5-living_room', '6-studio', '7-swimming_pool']
+    
     for cls in classes:
-        if cls.lower() in support_classes:
+        if cls in support_classes:
             images = df.loc[df['label'] == cls]['filename'].tolist()
-            if not cls.lower() in dataset_dict:
+            images = list(map(lambda file: os.path.join(data_path, file), images))
+            if not cls in dataset_dict:
                 dataset_dict[cls] = []
             dataset_dict[cls].extend(images)
 

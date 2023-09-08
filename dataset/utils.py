@@ -9,45 +9,25 @@ from .episodic_dataset import EpisodeDataset, InferenceDataset, SupportDataset
 
 
 def get_sets(args):
-    if args.dataset == 'places':
-        from .places import dataset_setting
-    elif args.dataset == 'places_600':
-        from .places600 import dataset_setting
-    elif args.dataset == 'test':
-        from .test import dataset_setting
-    elif args.dataset == "final_test":
-        from .places600_final import dataset_setting
-    elif args.dataset == 'csam':
-        from .inference import dataset_setting
-
-    else:
-        raise ValueError(f'{args.dataset} is not supported.')
-
-    # If not meta_dataset
-     # If not meta_dataset
-    transform, inputW, inputH, testDict = \
-        dataset_setting(args.dataset_path, args.img_size)
+    dataset = torch.load(args.support_file, map_location='cpu')
     
-    trainSet = valSet = testSet = None
-
-    testSet = EpisodeDataset(imgDir = testDict,
-                            nCls = len(testDict.keys()),
+    testSet = EpisodeDataset(imgDir = dataset,
+                            nCls = len(dataset.keys()),
                             nSupport = args.nSupport,
                             nQuery = args.nQuery,
-                            transform = transform,
-                            inputW = inputW,
-                            inputH = inputH,
                             nEpisode = args.nEpisode)
 
-    return trainSet, valSet, testSet
+    return testSet
 
 def get_inference_set(args):
     from .inference import dataset_setting
 
-     # If not meta_dataset
-    transform, inputW, inputH, testDict = \
-        dataset_setting(args.dataset_path, args.img_size)
+    csv_file = args.csv_file if args.csv_file else None
     
+    # If not meta_dataset
+    transform, inputW, inputH, testDict = \
+        dataset_setting(args.dataset_path, csv_file=csv_file, img_size=args.img_size, csv_sep=args.csv_sep, dataset_name=args.dataset)
+
     testSet = InferenceDataset(dataset_dict=testDict, 
                                transform=transform, 
                                inputW=inputW, 
@@ -78,18 +58,15 @@ def get_classifier_set(args):
 def get_loaders(args):
     print("get datasets")
     # datasets
-    if args.classify:
+    if args.classify and args.eval_general:
         dataset_train, dataset_vals = get_classifier_set(args)
+    elif args.classify and args.eval_fsl:
+        dataset_vals = get_sets(args)
     elif args.extract_features:
         dataset_vals = get_inference_set(args)
-    elif args.eval:
-        _, _, dataset_vals = get_sets(args)
-    else:
-        dataset_train, dataset_vals, _ = get_sets(args)
     
     global_labels_val = dataset_vals.mapCls
-
-    if args.classify:
+    if args.classify and args.eval_general:
         global_labels_val = dataset_train.mapCls
         
     # Val loader
@@ -110,7 +87,7 @@ def get_loaders(args):
         generator=generator if args.seed > -1 else None
     )
 
-    if args.eval or args.extract_features:
+    if args.extract_features or (args.classify and args.eval_fsl):
         return None, data_loader_val, global_labels_val
 
     # Train loader

@@ -50,11 +50,12 @@ def transform_dataset(csv_file, data_path, sep, dataset_name=None):
     classes = df['label'].unique()
     support_classes = classes = list(map(lambda x: x.lower(), classes))
     if dataset_name == "csam_indoor":
-        support_classes = ['0-bathroom', '1-bedroom', '2-child_room', '3-classroom', '4-dressing_room', '5-living_room', '6-studio', '7-swimming_pool']
+        support_classes = ['bathroom', 'bedroom', 'childs_room', 'classroom', 'dressing_room', 'living_room', 'studio', 'swimming_pool']
     
     for cls in classes:
         if cls in support_classes:
-            images = df.loc[df['label'] == cls]['filename'].tolist()
+            images = df.loc[df['label'].str.lower() == cls]['filename'].tolist()
+            print(images)
             images = list(map(lambda file: os.path.join(data_path, file), images))
             if not cls in dataset_dict:
                 dataset_dict[cls] = []

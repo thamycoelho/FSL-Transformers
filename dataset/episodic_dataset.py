@@ -32,10 +32,13 @@ class EpisodeDataset(data.Dataset):
 
         self.loaded_dict = imgDir
         self.clsList = sorted(list(self.loaded_dict.keys()))
-            
+        
+        self.nSamples = 0
+        for cls in self.loaded_dict:
+            self.nSamples += len(self.loaded_dict[cls])
         self.nCls = nCls
         self.nSupport = nSupport
-        self.nQuery = nQuery
+        self.nQuery = self.nSamples - (nCls * nSupport)
         self.nEpisode = nEpisode
 
         floatType = torch.FloatTensor
@@ -43,17 +46,20 @@ class EpisodeDataset(data.Dataset):
 
         self.tensorSupport = floatType(nCls * nSupport, 384)
         self.labelSupport = intType(nCls * nSupport)
-        self.tensorQuery = floatType(nCls * nQuery, 384)
-        self.labelQuery = intType(nCls * nQuery)
+        self.tensorQuery = floatType(self.nQuery, 384)
+        self.labelQuery = intType(self.nQuery)
         self.support_img_files = np.empty(nCls * nSupport, dtype='object')
-        self.query_img_files = np.empty(nCls * nQuery, dtype='object')
+        self.query_img_files = np.empty(self.nQuery, dtype='object')
         self.mapCls = {}
 
         # labels {0, ..., nCls-1}
-        for i in range(self.nCls):
+        last_query_idx = 0
+        for i, cls in enumerate(self.clsList):
             self.labelSupport[i * self.nSupport : (i+1) * self.nSupport] = i
-            self.labelQuery[i * self.nQuery : (i+1) * self.nQuery] = i
-           
+            len_samples = len(self.loaded_dict[cls]) - self.nSupport
+            self.labelQuery[last_query_idx : last_query_idx + len_samples] = i
+            last_query_idx += len_samples
+        
         for i, cls in enumerate(self.clsList):
             self.mapCls[cls] = i
         
@@ -73,14 +79,16 @@ class EpisodeDataset(data.Dataset):
         # select nCls from clsList
         clsEpisode = self.clsList
         LabeltoClass = dict()
+        last_query_idx = 0
         for i, cls in enumerate(clsEpisode):
             #dict LabeltoClass
             LabeltoClass[i] = cls
             
             imgList = self.loaded_dict[cls]
+            n_samples_query = len(self.loaded_dict[cls]) - self.nSupport
 
             # in total nQuery+nSupport images from each class
-            imgCls = np.random.choice(len(imgList), self.nQuery + self.nSupport, replace=False)
+            imgCls = np.random.choice(len(imgList), n_samples_query + self.nSupport, replace=False)
             imgCls = [imgList[i] for i in imgCls]
             
             for j in range(self.nSupport) :
@@ -88,14 +96,16 @@ class EpisodeDataset(data.Dataset):
                 self.support_img_files[i * self.nSupport + j] = img[1]
                 self.tensorSupport[i * self.nSupport + j] = img[0]
 
-            for j in range(self.nQuery) :
+            for j in range(n_samples_query) :
                 img = imgCls[j + self.nSupport]
-                self.query_img_files[i * self.nQuery + j] = img[1]
-                self.tensorQuery[i * self.nQuery + j] = img[0]
+                self.query_img_files[last_query_idx + j] = img[1]
+                self.tensorQuery[last_query_idx + j] = img[0]
 
+            last_query_idx += n_samples_query
+            
         ## Random permutation. Though this is not necessary in our approach
         permSupport = torch.randperm(self.nCls * self.nSupport)
-        permQuery = torch.randperm(self.nCls * self.nQuery)
+        permQuery = torch.randperm(self.nQuery)
 
         img_file_support = list(self.support_img_files[permSupport])
         img_file_query = list(self.query_img_files[permQuery])

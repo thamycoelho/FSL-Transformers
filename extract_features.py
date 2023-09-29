@@ -20,7 +20,6 @@ def main(args):
 
     # Set device
     device = torch.device(args.device)
-
     # Get data loaders
     print('Getting dataset')
     _, data_loader_val, global_labels_val = get_loaders(args)

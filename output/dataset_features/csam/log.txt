@@ -1,0 +1,15 @@
+../extract_features.py --output ../output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume ../output/weights/deit_small/best.pth
+../extract_features.py --output ../output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume ../output/weights/deit_small/best.pth
+../extract_features.py --output ../output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume ../output/weights/deit_small/best.pth
+../extract_features.py --output ../output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume ../output/weights/deit_small/best.pth --device cpu
+../extract_features.py --output ../output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume ../output/weights/deit_small/best.pth --device cpu
+../extract_features.py --output ../output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume ../output/weights/deit_small/best.pth --device cpu
+../extract_features.py --output ../output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume ../output/weights/deit_small/best.pth --device cpu
+../extract_features.py --output ../output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume ../output/weights/deit_small/best.pth --device cpu
+../extract_features.py --output ../output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume ../output/weights/deit_small/best.pth --device cpu
+../extract_features.py --output ../output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume ../output/weights/deit_small/best.pth --device cpu
+../extract_features.py --output ../output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume ../output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset csam --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/landmark_images/test/ --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset csam --backbone deit_small --dataset_path ../landmark_images/test/ --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset csam --backbone deit_small --dataset_path ../landmark_images/test/ --resume output/weights/deit_small/best.pth --device cpu

@@ -128,7 +128,7 @@ class Trainer:
                 resume=False,
                 record_wandb=True):
         data_loader = self.data_loader_val 
-        gloal_label_id = self.global_labels_val 
+        global_label_id = self.global_labels_val 
 
         # Logger 
         metric_logger = logger.MetricLogger(delimiter="  ")
@@ -241,7 +241,7 @@ class Trainer:
 
         support = self.data_loader_train
         query = self.data_loader_val
-        gloal_label_id = self.global_labels_val 
+        global_label_id = self.global_labels_val 
         
         y_pred = []
         y_target = []
@@ -281,9 +281,8 @@ class Trainer:
                 correct += (pred == QueryLabel).sum()
 
                 # Map classified labels to global labels
-                QueryLabel = map_labels(gloal_label_id,sup_label_to_class, QueryLabel)
-                pred = map_labels(gloal_label_id,sup_label_to_class, pred)
-                
+                QueryLabel = map_labels(global_label_id,query_label_to_class, QueryLabel)
+                pred = map_labels(global_label_id,sup_label_to_class, pred)
                 # Append results 
                 label.extend([sup_label_to_class[x][0] for x in QueryLabel])
                 predicted.extend([sup_label_to_class[x][0] if img_file[i] not in sup_image_file else None for i, x in enumerate(pred)])
@@ -309,7 +308,7 @@ class Trainer:
     
     def classify_fsl_(self, args):
         dataloader = self.data_loader_val
-        gloal_label_id = self.global_labels_val 
+        global_label_id = self.global_labels_val 
         
         # Logger 
         metric_logger = logger.MetricLogger(delimiter="  ")
@@ -347,8 +346,8 @@ class Trainer:
             pred = torch.argmax(logits, dim=-1)
 
             # Map classified labels to global labels
-            QueryLabel = map_labels(gloal_label_id, label_to_class, QueryLabel)
-            pred = map_labels(gloal_label_id, label_to_class, pred)
+            QueryLabel = map_labels(global_label_id, label_to_class, QueryLabel)
+            pred = map_labels(global_label_id, label_to_class, pred)
             
             # Append results 
             label.extend([label_to_class[x][0] for x in QueryLabel])

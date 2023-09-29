@@ -1,0 +1,17 @@
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path /home/thamiriscoelho/Documentos/rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu
+extract_features.py --output output/ --dataset RCPD --backbone deit_small --dataset_path ../rcpd_test/ --csv_file output/csv/rcpd2.csv --resume output/weights/deit_small/best.pth --device cpu

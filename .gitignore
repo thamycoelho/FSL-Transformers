@@ -178,3 +178,11 @@ output/test/test/confusion_matrix.png
 output/test/test/log.txt
 Untitled1.ipynb
 output/test/FSL-Transformers/test_aggragator/log.txt
+explore_experiment.ipynb
+output/dataset_features/csam/log.txt
+output/results/csam/fsl_protocol/result.csv
+output/results/csam_fsl_protocol/fsl_protocol/result.csv
+output/results/RCPD_fsl_protocol/fsl_protocol/result.csv
+.gitignore
+output/results/results_csam_indoor/fsl_protocol/result.csv
+output/results/results_csam_indoor/general_protocol/result.csv
